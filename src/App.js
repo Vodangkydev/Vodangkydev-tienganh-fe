@@ -924,7 +924,7 @@ function App() {
         <div className="vocabulary-card" style={{ 
           position: 'relative',
           padding: isMobile ? '16px 12px' : '30px',
-          marginBottom: isMobile ? '10px' : '20px',
+          marginBottom: isMobile ? '0px' : '20px',
           textAlign: 'center'
         }}>
           <div style={{ marginBottom: '30px' }}>
@@ -1187,7 +1187,7 @@ function App() {
       <div className="vocabulary-card" style={{ 
         position: 'relative',
         padding: isMobile ? '16px 12px' : '30px',
-        marginBottom: isMobile ? '10px' : '20px'
+        marginBottom: isMobile ? '0px' : '20px'
       }}>
         {/* Mode Toggle */}
         <div style={{
@@ -1246,7 +1246,7 @@ function App() {
 
         {/* Flashcard Mode UI */}
         {flashcardMode ? (
-          <div>
+          <div style={{ paddingBottom: isMobile ? '120px' : '40px' }}>
             <div 
               className="flashcard"
               onClick={() => {
@@ -1258,9 +1258,9 @@ function App() {
               style={{
                 cursor: 'pointer',
                 width: '100%',
-                minHeight: isMobile ? '250px' : '300px',
+                minHeight: isMobile ? '400px' : '300px',
                 position: 'relative',
-                marginBottom: '25px',
+                marginBottom: isMobile ? '20px' : '30px',
                 transition: 'transform 0.6s',
                 transform: isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)',
                 transformStyle: 'preserve-3d',
@@ -1486,7 +1486,7 @@ function App() {
             <div style={{ 
               display: 'flex', 
               justifyContent: 'center',
-              marginBottom: '20px'
+              marginBottom: isMobile ? '10px' : '20px'
             }}>
               <button 
                 onClick={shuffleWords}
@@ -1524,7 +1524,7 @@ function App() {
               display: 'flex', 
               gap: '20px', 
               justifyContent: 'center',
-              marginTop: '20px'
+              marginTop: isMobile ? '10px' : '20px'
             }}>
               <button 
                 onClick={handlePrevious}
