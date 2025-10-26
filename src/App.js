@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { CheckCircle, XCircle, AlertCircle, Loader, ChevronLeft, ChevronRight, RotateCcw, Plus, Eye, EyeOff, X, Settings, HelpCircle, Star, Volume2, User, LogOut, LogIn, FileText, BookOpen } from 'lucide-react';
+import { CheckCircle, XCircle, AlertCircle, Loader, ChevronLeft, ChevronRight, RotateCcw, Plus, Eye, EyeOff, X, Settings, HelpCircle, Star, Volume2, User, LogOut, LogIn, FileText, BookOpen, Cloud } from 'lucide-react';
 import axios from 'axios';
 import './App.css';
 
@@ -928,7 +928,7 @@ function App() {
           textAlign: 'center'
         }}>
           <div style={{ marginBottom: '30px' }}>
-            <User size={64} style={{ color: '#667eea', marginBottom: '20px' }} />
+            <img src="/cloud-icon.png" alt="Cloud Logo" style={{ width: '64px', height: '64px', marginBottom: '20px' }} />
             <h2 style={{ marginBottom: '15px', color: '#2d3748' }}>
               Chào mừng đến với ứng dụng học tiếng Anh!
             </h2>
@@ -2709,7 +2709,7 @@ flexible : linh hoạt"
                       justifyContent: 'center',
                       boxShadow: '0 4px 15px rgba(102, 126, 234, 0.4)'
                     }}>
-                      <User size={isMobile ? 22 : 26} style={{ color: 'white' }} />
+                      <img src="/cloud-icon.png" alt="Cloud" style={{ width: isMobile ? '32px' : '38px', height: isMobile ? '32px' : '38px' }} />
                     </div>
                     <div style={{ flex: 1 }}>
                       <div style={{ fontSize: isMobile ? '0.85rem' : '0.9rem', color: '#a0aec0', marginBottom: '4px' }}>
