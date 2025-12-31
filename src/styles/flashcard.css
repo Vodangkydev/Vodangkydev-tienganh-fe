@@ -1,0 +1,77 @@
+/* Flashcard Styles */
+.flashcard {
+  perspective: 1000px;
+  transform-style: preserve-3d;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+.flashcard:active {
+  transform: scale(0.98);
+  transition: transform 0.1s ease;
+}
+
+.flashcard > div {
+  transition: transform 0.6s;
+  transform-style: preserve-3d;
+}
+
+.flashcard-content {
+  transform-style: preserve-3d;
+  transition: transform 0.6s;
+}
+
+.flashcard-front {
+  transform: rotateY(0deg);
+}
+
+.flashcard-back {
+  transform: rotateY(180deg);
+}
+
+.flashcard-controls {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.flashcard-controls button {
+  transition: all 0.3s ease;
+}
+
+.flashcard-controls button:hover {
+  transform: translateY(-2px);
+}
+
+/* Mobile responsive for flashcard controls */
+@media (max-width: 768px) {
+  .flashcard-controls {
+    gap: 12px;
+    margin-bottom: 15px;
+  }
+  
+  .flashcard-controls button {
+    width: 48px;
+    height: 48px;
+    font-size: 1.2rem;
+    border-radius: 50%;
+  }
+}
+
+@media (max-width: 480px) {
+  .flashcard-controls {
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  
+  .flashcard-controls button {
+    width: 44px;
+    height: 44px;
+    font-size: 1.1rem;
+  }
+}
+

@@ -1,16 +1,13 @@
+/* Import all component styles */
+@import './styles/common.css';
+@import './styles/flashcard.css';
+@import './styles/quiz.css';
+@import './styles/practice.css';
+@import './styles/toast.css';
+@import './styles/loginModal.css';
+
 .App {
   text-align: center;
-}
-
-.app {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 20px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  position: relative;
-  overflow-x: hidden;
 }
 
 .app::before {
@@ -111,7 +108,6 @@
   font-weight: 500;
   box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
   border: 1px solid rgba(255, 255, 255, 0.2);
-  animation: slideInUp 0.8s ease-out 0.2s both;
 }
 
 .input-section {
@@ -364,6 +360,49 @@
     transform: translateX(100%);
     opacity: 0;
   }
+}
+
+@keyframes slideInLeft {
+  from {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideOutLeft {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+}
+
+/* Slide transition wrapper */
+.slide-container {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+}
+
+.slide-content {
+  animation-duration: 0.4s;
+  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  animation-fill-mode: both;
+}
+
+.slide-content.slide-right {
+  animation-name: slideInRight;
+}
+
+.slide-content.slide-left {
+  animation-name: slideInLeft;
 }
 
 @keyframes fadeInDown {

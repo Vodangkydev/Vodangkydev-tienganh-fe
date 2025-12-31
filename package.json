@@ -1,5 +1,5 @@
 {
-  "name": "english-learning-frontend",
+  "name": "tienganh-fe",
   "version": "1.0.0",
   "private": true,
   "dependencies": {
@@ -17,6 +17,7 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
+    "dev": "react-scripts start",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
