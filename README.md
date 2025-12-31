@@ -19,9 +19,18 @@ npm start
 
 Frontend tự động kết nối với backend API:
 - **Development**: `http://localhost:5000/api` (khi chạy tienganh-be local)
-- **Production**: `https://tienganh-k1k0.onrender.com/api`
+- **Production**: `https://vodangkydev-tienganh-fe.vercel.app/api` (backend trên Vercel)
+- **Fallback**: `https://tienganh-k1k0.onrender.com/api` (backend trên Render)
 
 Có thể cấu hình URL backend qua biến môi trường `REACT_APP_API_URL`.
+
+### Cấu hình Environment Variables
+
+Tạo file `.env` trong thư mục gốc để override URL backend:
+
+```env
+REACT_APP_API_URL=https://vodangkydev-tienganh-fe.vercel.app/api
+```
 
 ## 📦 Dependencies
 
