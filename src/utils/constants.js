@@ -8,8 +8,7 @@ export const getApiBaseUrl = () => {
   // Fallback URLs for different environments
   const fallbackUrls = [
     'http://localhost:5000/api',  // Local development first
-    'https://tienganh-be.vercel.app/api',
-    'https://tienganh-backend.vercel.app/api'
+    'https://tienganh-k1k0.onrender.com/api'  // Production backend on Render
   ];
   
   // Use localhost in development, production URL in production

@@ -19,7 +19,7 @@ npm start
 
 Frontend tự động kết nối với backend API:
 - **Development**: `http://localhost:5000/api` (khi chạy tienganh-be local)
-- **Production**: `https://tienganh-be.vercel.app/api`
+- **Production**: `https://tienganh-k1k0.onrender.com/api`
 
 Có thể cấu hình URL backend qua biến môi trường `REACT_APP_API_URL`.
 
