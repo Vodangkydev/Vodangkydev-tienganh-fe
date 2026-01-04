@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { Star, Volume2, ListChecks, Eye, RotateCcw, AlertCircle, XCircle, Settings } from 'lucide-react';
 import { getWordId } from '../utils/helpers';
 import { speakText } from '../utils/soundUtils';
@@ -63,11 +63,33 @@ const Practice = ({
   resetPractice,
   speakWord
 }) => {
+  const inputSectionRef = useRef(null);
+
   if (!currentWord) return null;
 
   // Wrapper to ensure sound plays when clicking next button
   const handleNextWithSound = () => {
     handleNext(false); // Explicitly pass false to ensure sound plays
+  };
+
+  // Handle input focus - scroll input section into view on mobile
+  const handleInputFocus = (e) => {
+    // Style changes
+    e.target.style.borderColor = '#667eea';
+    e.target.style.boxShadow = '0 0 0 4px rgba(102, 126, 234, 0.1), 0 8px 25px rgba(102, 126, 234, 0.15)';
+    e.target.style.transform = 'translateY(-1px)';
+    e.target.style.background = 'rgba(255, 255, 255, 0.95)';
+    
+    // Scroll input section into view on mobile to keep word visible above
+    if (isMobile && inputSectionRef.current) {
+      setTimeout(() => {
+        inputSectionRef.current.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'start',
+          inline: 'nearest'
+        });
+      }, 300); // Delay to allow keyboard to appear first
+    }
   };
 
   // Practice completed screen
@@ -513,7 +535,7 @@ const Practice = ({
         </div>
 
         {/* Input Section */}
-        <div className="input-section" style={{ 
+        <div ref={inputSectionRef} className="input-section" style={{ 
           marginBottom: isMobile ? '20px' : '30px',
           padding: isMobile ? '12px' : '25px',
           background: 'linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%)',
@@ -551,12 +573,7 @@ const Practice = ({
                 outline: 'none',
                 minHeight: isMobile ? '48px' : 'auto'
               }}
-              onFocus={(e) => {
-                e.target.style.borderColor = '#667eea';
-                e.target.style.boxShadow = '0 0 0 4px rgba(102, 126, 234, 0.1), 0 8px 25px rgba(102, 126, 234, 0.15)';
-                e.target.style.transform = 'translateY(-1px)';
-                e.target.style.background = 'rgba(255, 255, 255, 0.95)';
-              }}
+              onFocus={handleInputFocus}
               onBlur={(e) => {
                 e.target.style.borderColor = 'rgba(102, 126, 234, 0.2)';
                 e.target.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.05)';
