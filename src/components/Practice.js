@@ -84,36 +84,29 @@ const Practice = ({
     scrollWordDisplayToTop();
   };
 
-  // Separate function to scroll word display to top
+  // Scroll the word display to just below the header (for mobile UX)
   const scrollWordDisplayToTop = () => {
     if (wordDisplayRef.current) {
       const element = wordDisplayRef.current;
-      
-      // Use setTimeout to ensure the click event is processed first
+      const header = document.querySelector('.header');
+      let headerHeight = 0;
+      if (header) headerHeight = header.offsetHeight;
+      const padding = 12; // khoảng cách nhỏ dưới header
+
       setTimeout(() => {
-        // First try scrollIntoView - most reliable method
-        element.scrollIntoView({
-          behavior: 'smooth',
-          block: 'start',
-          inline: 'nearest'
+        // Lấy vị trí top tuyệt đối của phần từ vựng
+        const rect = element.getBoundingClientRect();
+        const scrollTop = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop;
+        const elementTop = rect.top + scrollTop;
+        const target = Math.max(0, elementTop - headerHeight - padding);
+        window.scrollTo({
+          top: target,
+          behavior: 'smooth'
         });
-        
-        // Backup: Calculate and scroll manually if needed
-        requestAnimationFrame(() => {
-          const rect = element.getBoundingClientRect();
-          // If element is not at the top, scroll manually
-          if (rect.top > 20) {
-            const scrollTop = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop;
-            const elementTop = rect.top + scrollTop;
-            window.scrollTo({
-              top: elementTop - 20,
-              behavior: 'smooth'
-            });
-          }
-        });
-      }, 10);
+      }, 12);
     }
   };
+
 
   // Practice completed screen
   if (practiceCompleted) {
