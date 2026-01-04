@@ -72,7 +72,7 @@ const Practice = ({
     handleNext(false); // Explicitly pass false to ensure sound plays
   };
 
-  // Handle input focus - scroll word display to top of screen immediately
+  // Handle input focus/click - scroll word display to top of screen immediately
   const handleInputFocus = (e) => {
     // Style changes
     e.target.style.borderColor = '#667eea';
@@ -80,19 +80,38 @@ const Practice = ({
     e.target.style.transform = 'translateY(-1px)';
     e.target.style.background = 'rgba(255, 255, 255, 0.95)';
     
-    // Scroll word display section to top of screen immediately - works on both mobile and desktop
+    // Scroll word display section to top of screen immediately
+    scrollWordDisplayToTop();
+  };
+
+  // Separate function to scroll word display to top
+  const scrollWordDisplayToTop = () => {
     if (wordDisplayRef.current) {
       const element = wordDisplayRef.current;
-      const elementTop = element.getBoundingClientRect().top + window.pageYOffset;
-      const offset = 20; // Small offset from top
       
-      // Use requestAnimationFrame to ensure smooth scroll
-      requestAnimationFrame(() => {
-        window.scrollTo({
-          top: elementTop - offset,
-          behavior: 'smooth'
+      // Use setTimeout to ensure the click event is processed first
+      setTimeout(() => {
+        // First try scrollIntoView - most reliable method
+        element.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start',
+          inline: 'nearest'
         });
-      });
+        
+        // Backup: Calculate and scroll manually if needed
+        requestAnimationFrame(() => {
+          const rect = element.getBoundingClientRect();
+          // If element is not at the top, scroll manually
+          if (rect.top > 20) {
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop;
+            const elementTop = rect.top + scrollTop;
+            window.scrollTo({
+              top: elementTop - 20,
+              behavior: 'smooth'
+            });
+          }
+        });
+      }, 10);
     }
   };
 
@@ -577,6 +596,7 @@ const Practice = ({
                 outline: 'none',
                 minHeight: isMobile ? '48px' : 'auto'
               }}
+              onClick={scrollWordDisplayToTop}
               onFocus={handleInputFocus}
               onBlur={(e) => {
                 e.target.style.borderColor = 'rgba(102, 126, 234, 0.2)';
