@@ -72,7 +72,7 @@ const Practice = ({
     handleNext(false); // Explicitly pass false to ensure sound plays
   };
 
-  // Handle input focus - scroll word display up to keep it visible above keyboard
+  // Handle input focus - scroll word display to top of screen immediately
   const handleInputFocus = (e) => {
     // Style changes
     e.target.style.borderColor = '#667eea';
@@ -80,15 +80,15 @@ const Practice = ({
     e.target.style.transform = 'translateY(-1px)';
     e.target.style.background = 'rgba(255, 255, 255, 0.95)';
     
-    // Scroll word display section to top on mobile to keep word visible above keyboard
+    // Scroll word display section to very top of screen on mobile (immediately, no delay)
     if (isMobile && wordDisplayRef.current) {
-      setTimeout(() => {
-        wordDisplayRef.current.scrollIntoView({ 
-          behavior: 'smooth', 
-          block: 'start',
-          inline: 'nearest'
-        });
-      }, 300); // Delay to allow keyboard to appear first
+      const element = wordDisplayRef.current;
+      const elementTop = element.getBoundingClientRect().top + window.pageYOffset;
+      
+      window.scrollTo({
+        top: elementTop,
+        behavior: 'smooth'
+      });
     }
   };
 
