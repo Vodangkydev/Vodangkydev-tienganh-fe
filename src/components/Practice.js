@@ -81,14 +81,8 @@ const Practice = ({
     e.target.style.background = 'rgba(255, 255, 255, 0.95)';
     
     // Scroll word display section to very top of screen on mobile (immediately, no delay)
-    if (isMobile && wordDisplayRef.current) {
-      const element = wordDisplayRef.current;
-      const elementTop = element.getBoundingClientRect().top + window.pageYOffset;
-      
-      window.scrollTo({
-        top: elementTop,
-        behavior: 'smooth'
-      });
+    if (isMobile) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
