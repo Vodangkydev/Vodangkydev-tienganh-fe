@@ -80,9 +80,9 @@ const Practice = ({
     e.target.style.transform = 'translateY(-1px)';
     e.target.style.background = 'rgba(255, 255, 255, 0.95)';
     
-    // Scroll word display section to very top of screen on mobile (immediately, no delay)
+    // Scroll to top of screen immediately (default browser behavior, no animation)
     if (isMobile) {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      window.scrollTo({ top: 0, behavior: 'auto' });
     }
   };
 
