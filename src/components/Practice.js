@@ -63,7 +63,7 @@ const Practice = ({
   resetPractice,
   speakWord
 }) => {
-  const inputSectionRef = useRef(null);
+  const wordDisplayRef = useRef(null);
 
   if (!currentWord) return null;
 
@@ -72,7 +72,7 @@ const Practice = ({
     handleNext(false); // Explicitly pass false to ensure sound plays
   };
 
-  // Handle input focus - scroll input section into view on mobile
+  // Handle input focus - scroll word display up to keep it visible above keyboard
   const handleInputFocus = (e) => {
     // Style changes
     e.target.style.borderColor = '#667eea';
@@ -80,10 +80,10 @@ const Practice = ({
     e.target.style.transform = 'translateY(-1px)';
     e.target.style.background = 'rgba(255, 255, 255, 0.95)';
     
-    // Scroll input section into view on mobile to keep word visible above
-    if (isMobile && inputSectionRef.current) {
+    // Scroll word display section to top on mobile to keep word visible above keyboard
+    if (isMobile && wordDisplayRef.current) {
       setTimeout(() => {
-        inputSectionRef.current.scrollIntoView({ 
+        wordDisplayRef.current.scrollIntoView({ 
           behavior: 'smooth', 
           block: 'start',
           inline: 'nearest'
@@ -248,7 +248,7 @@ const Practice = ({
     <div className="slide-container">
       <div key={wordIndex}>
         {/* Word Display */}
-        <div style={{ 
+        <div ref={wordDisplayRef} style={{ 
           display: 'flex', 
           justifyContent: 'space-between', 
           alignItems: 'center', 
@@ -535,7 +535,7 @@ const Practice = ({
         </div>
 
         {/* Input Section */}
-        <div ref={inputSectionRef} className="input-section" style={{ 
+        <div className="input-section" style={{ 
           marginBottom: isMobile ? '20px' : '30px',
           padding: isMobile ? '12px' : '25px',
           background: 'linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%)',
