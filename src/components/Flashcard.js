@@ -30,7 +30,8 @@ const Flashcard = ({
   handleNext,
   handlePrevious,
   handleTouchStart,
-  handleTouchEnd
+  handleTouchEnd,
+  soundEnabled
 }) => {
   const touchStartRef = useRef(null);
   const isSwipingRef = useRef(false);
@@ -54,7 +55,7 @@ const Flashcard = ({
       return;
     }
     setIsFlipped(!isFlipped);
-    playFlipSound();
+    playFlipSound(soundEnabled);
   };
 
   const onCardTouchStart = (e) => {

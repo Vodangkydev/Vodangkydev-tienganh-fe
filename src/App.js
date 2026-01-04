@@ -1037,6 +1037,7 @@ function App() {
             handlePrevious={handlePrevious}
             handleTouchStart={handleTouchStart}
             handleTouchEnd={handleTouchEnd}
+            soundEnabled={soundEnabled}
           />
         ) : quizMode ? (
           <Quiz
