@@ -42,6 +42,11 @@ const Flashcard = ({
     speakText(currentWord.english, 'en-US');
   };
 
+  // Wrapper to ensure sound plays when clicking next button
+  const handleNextWithSound = () => {
+    handleNext(false); // Explicitly pass false to ensure sound plays
+  };
+
   const handleFlip = (e) => {
     // Prevent flip if it was a swipe gesture
     if (isSwipingRef.current) {
@@ -567,7 +572,7 @@ const Flashcard = ({
         </div>
         
         <button 
-          onClick={handleNext}
+          onClick={handleNextWithSound}
           style={{
             background: 'linear-gradient(135deg, #4caf50 0%, #45a049 100%)',
             color: 'white',

@@ -268,16 +268,20 @@ function App() {
     }
   }, [allWords.length]);
 
+  // Create ref for handleNext to pass to practice hook
+  const handleNextRef = useRef(null);
+
   // Practice hook (initialize early to avoid circular dependency)
   const practice = usePractice(
     showToast,
     loadUserStats,
     languageMode,
-    autoAdvance
+    autoAdvance,
+    handleNextRef // Pass ref instead of null
   );
 
   // Navigation handlers
-  const handleNext = useCallback(() => {
+  const handleNext = useCallback((silent = false) => {
     setSlideDirection('right');
     const wordsToUse = flashcardMode ? limitedFlashcardFilteredWords : limitedFilteredWords;
     
@@ -286,7 +290,8 @@ function App() {
     } else {
       // Loop back to first word if not at last word with practice result
       if (!flashcardMode && !quizMode && practice.practiceStarted) {
-        if (practice.practiceResults[wordsToUse[wordIndex]?.id]) {
+        const currentWordId = wordsToUse[wordIndex] ? getWordId(wordsToUse[wordIndex]) : null;
+        if (currentWordId && practice.practiceResults[currentWordId]) {
           return;
         }
       }
@@ -297,9 +302,16 @@ function App() {
     // Reset flashcard state
     setIsFlipped(false);
     setShowFlashcardHint(false);
-    // Play sound
-    handlePlayCorrectSound();
+    // Play sound only if not silent (for auto advance)
+    if (!silent) {
+      handlePlayCorrectSound();
+    }
   }, [wordIndex, flashcardMode, quizMode, limitedFlashcardFilteredWords, limitedFilteredWords, practice]);
+
+  // Update handleNext ref when it changes
+  useEffect(() => {
+    handleNextRef.current = handleNext;
+  }, [handleNext]);
 
   const handlePrevious = useCallback(() => {
     setSlideDirection('left');
@@ -375,7 +387,7 @@ function App() {
   const handleKeyPress = (e) => {
     if (e.key === 'Enter' && !loading) {
       if (!practice.isAnswered && !quizMode) {
-        practice.handleSubmit(currentWord, wordIndex, filteredWords, handleNext);
+        practice.handleSubmit(currentWord, wordIndex, filteredWords);
       } else if (!quizMode && practice.feedback?.result === 'correct' && !autoAdvance) {
         // Chỉ chuyển từ thủ công nếu không bật autoAdvance
         handleNext();
@@ -389,21 +401,32 @@ function App() {
 
   const toggleHint = async () => {
     if (!practice.showHint && currentWord) {
-      try {
-        // Get hint from server
-        const wordId = getWordId(currentWord);
-        const response = await axios.get(`${API_BASE_URL}/hint/${wordId}`, {
-          params: { difficulty }
-        });
-        practice.setWordHint(response.data.hint);
-        practice.setShowHint(true);
-      } catch (err) {
-        console.error('Error getting hint:', err);
-        // Fallback to local hint generation
-        const targetWord = languageMode === 'vietnamese' ? currentWord.english : currentWord.vietnamese;
+      // Khi languageMode === 'english': mặt trước là English, gợi ý = Vietnamese hint (dạng v** v**)
+      // Khi languageMode === 'vietnamese': mặt trước là Vietnamese, gợi ý = English hint (dạng ca**)
+      if (languageMode === 'english') {
+        // Tạo gợi ý cho từ tiếng Việt (dạng v** v**) theo mức độ khó
+        const targetWord = currentWord.vietnamese;
         const hint = generateHint(targetWord, difficulty);
         practice.setWordHint(hint);
         practice.setShowHint(true);
+      } else {
+        // Tạo gợi ý cho từ tiếng Anh (dạng ca**)
+        try {
+          // Get hint from server
+          const wordId = getWordId(currentWord);
+          const response = await axios.get(`${API_BASE_URL}/hint/${wordId}`, {
+            params: { difficulty }
+          });
+          practice.setWordHint(response.data.hint);
+          practice.setShowHint(true);
+        } catch (err) {
+          console.error('Error getting hint:', err);
+          // Fallback to local hint generation
+          const targetWord = currentWord.english;
+          const hint = generateHint(targetWord, difficulty);
+          practice.setWordHint(hint);
+          practice.setShowHint(true);
+        }
       }
     } else {
       practice.setShowHint(!practice.showHint);
@@ -414,11 +437,13 @@ function App() {
   const toggleFlashcardHint = async () => {
     if (!showFlashcardHint && currentWord) {
       try {
-        // Khi languageMode === 'english': mặt trước là English, gợi ý = Vietnamese translation
-        // Khi languageMode === 'vietnamese': mặt trước là Vietnamese, gợi ý = English hint
+        // Khi languageMode === 'english': mặt trước là English, gợi ý = Vietnamese hint (dạng v** v**)
+        // Khi languageMode === 'vietnamese': mặt trước là Vietnamese, gợi ý = English hint (dạng ca**)
         if (languageMode === 'english') {
-          // Hiển thị nghĩa tiếng Việt làm gợi ý
-          setWordHint(currentWord.vietnamese);
+          // Tạo gợi ý cho từ tiếng Việt (dạng v** v**) theo mức độ khó
+          const targetWord = currentWord.vietnamese;
+          const hint = generateHint(targetWord, difficulty);
+          setWordHint(hint);
         } else {
           // Tạo gợi ý cho từ tiếng Anh (dạng ca**)
           const targetWord = currentWord.english;
@@ -507,12 +532,10 @@ function App() {
           <div style={{ marginTop: '30px', padding: '20px', background: 'rgba(102, 126, 234, 0.1)', borderRadius: '12px' }}>
             <h3 style={{ marginBottom: '10px', color: '#667eea' }}>Hướng dẫn sử dụng:</h3>
             <p style={{ margin: '5px 0', fontSize: '0.9rem', color: '#6c757d' }}>
-              • Nhập tên người dùng và mật khẩu để đăng nhập
-             
-              <br />
-              <strong>Tên người dùng:</strong> vodangky312
-              <br />
-              <strong>Mật khẩu:</strong> 123456
+              • Nhập tên và mật khẩu người dùng để đăng nhập <br></br>
+              (Ví dụ: 
+              Tên người dùng: vodangky312  <br></br>
+              Mật khẩu: 123456)
             </p>
             <p style={{ margin: '5px 0', fontSize: '0.9rem', color: '#6c757d' }}>
               • Nếu chưa có tài khoản, hệ thống sẽ tự động tạo mới
@@ -1065,6 +1088,7 @@ function App() {
             limitedFilteredWords={limitedFilteredWords}
             practiceCompleted={practice.practiceCompleted}
             practiceResults={practice.practiceResults}
+            setPracticeCompleted={practice.setPracticeCompleted}
             showPracticeSettings={showPracticeSettings}
             setShowPracticeSettings={setShowPracticeSettings}
             showSettings={showSettings}
@@ -1076,7 +1100,7 @@ function App() {
             autoAdvance={autoAdvance}
             toggleHint={toggleHint}
             toggleFavorite={toggleFavorite}
-            handleSubmit={(e) => practice.handleSubmit(currentWord, wordIndex, filteredWords, handleNext)}
+            handleSubmit={(e) => practice.handleSubmit(currentWord, wordIndex, filteredWords)}
             handleNext={handleNext}
             handlePrevious={handlePrevious}
             handleRetry={practice.handleRetry}
@@ -1085,7 +1109,6 @@ function App() {
             setLanguageMode={setLanguageMode}
             setWordFilter={setWordFilter}
             resetPractice={resetPractice}
-            setPracticeCompleted={practice.setPracticeCompleted}
             speakWord={speakWord}
           />
         )}

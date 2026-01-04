@@ -1,5 +1,6 @@
-import React from 'react';
-import { X, LogOut, Plus } from 'lucide-react';
+import React, { useState } from 'react';
+import { X, LogOut, Plus, ChevronDown, ChevronUp } from 'lucide-react';
+import ConfirmDialog from './ConfirmDialog';
 
 const Settings = ({
   isOpen,
@@ -26,6 +27,10 @@ const Settings = ({
   onDeleteVocabulary,
   onOpenBulkImport
 }) => {
+  const [isStatsExpanded, setIsStatsExpanded] = useState(false);
+  const [isVocabExpanded, setIsVocabExpanded] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
   if (!isOpen) return null;
 
   return (
@@ -324,212 +329,288 @@ const Settings = ({
 
         </div>
 
-        {/* Statistics Section - Full Width */}
+        {/* Statistics Section - Full Width with Collapse */}
         <div style={{ 
           padding: isMobile ? '20px' : '24px',
           background: 'rgba(76, 175, 80, 0.08)',
           borderRadius: isMobile ? '12px' : '16px',
           border: '1px solid rgba(76, 175, 80, 0.2)',
-          marginTop: '10px'
+          marginTop: '10px',
+          transition: 'all 0.3s ease'
         }}>
-          <div style={{ fontSize: isMobile ? '1rem' : '1.1rem', fontWeight: '700', marginBottom: isMobile ? '8px' : '14px', color: '#4caf50', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            📊 Thống kê học tập
-          </div>
-          <div style={{ 
-            display: 'grid', 
-            gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)', 
-            gap: isMobile ? '12px' : '15px',
-            marginBottom: '8px'
-          }}>
-            <div style={{ 
-              textAlign: 'center',
-              padding: isMobile ? '12px' : '16px',
-              background: '#1a202c',
-              borderRadius: '12px',
-              border: '1px solid rgba(76, 175, 80, 0.2)'
-            }}>
-              <div style={{ 
-                fontSize: isMobile ? '1.8rem' : '2rem', 
-                fontWeight: 'bold', 
-                color: '#4caf50',
-                marginBottom: '4px'
-              }}>
-                {stats.correct}
-              </div>
-              <div style={{ fontSize: isMobile ? '0.75rem' : '0.85rem', color: '#a0aec0', fontWeight: '500' }}>Đúng</div>
-            </div>
-            <div style={{ 
-              textAlign: 'center',
-              padding: isMobile ? '12px' : '16px',
-              background: '#1a202c',
-              borderRadius: '12px',
-              border: '1px solid rgba(255, 152, 0, 0.2)'
-            }}>
-              <div style={{ 
-                fontSize: isMobile ? '1.8rem' : '2rem', 
-                fontWeight: 'bold', 
-                color: '#ff9800',
-                marginBottom: '4px'
-              }}>
-                {stats.nearlyCorrect}
-              </div>
-              <div style={{ fontSize: isMobile ? '0.75rem' : '0.85rem', color: '#a0aec0', fontWeight: '500' }}>Gần đúng</div>
-            </div>
-            <div style={{ 
-              textAlign: 'center',
-              padding: isMobile ? '12px' : '16px',
-              background: '#1a202c',
-              borderRadius: '12px',
-              border: '1px solid rgba(244, 67, 54, 0.2)'
-            }}>
-              <div style={{ 
-                fontSize: isMobile ? '1.8rem' : '2rem', 
-                fontWeight: 'bold', 
-                color: '#f44336',
-                marginBottom: '4px'
-              }}>
-                {stats.incorrect}
-              </div>
-              <div style={{ fontSize: isMobile ? '0.75rem' : '0.85rem', color: '#a0aec0', fontWeight: '500' }}>Sai</div>
-            </div>
-            <div style={{ 
-              textAlign: 'center',
-              padding: isMobile ? '12px' : '16px',
-              background: '#1a202c',
-              borderRadius: '12px',
-              border: '1px solid rgba(66, 153, 225, 0.2)'
-            }}>
-              <div style={{ 
-                fontSize: isMobile ? '1.8rem' : '2rem', 
-                fontWeight: 'bold', 
-                color: '#4299e1',
-                marginBottom: '4px'
-              }}>
-                {stats.total}
-              </div>
-              <div style={{ fontSize: isMobile ? '0.75rem' : '0.85rem', color: '#a0aec0', fontWeight: '500' }}>Tổng</div>
-            </div>
-          </div>
-          <button 
-            onClick={onResetStats}
+          <button
+            onClick={() => setIsStatsExpanded(!isStatsExpanded)}
             style={{
               width: '100%',
-              background: 'linear-gradient(135deg, #f44336 0%, #d32f2f 100%)',
-              color: 'white',
+              background: 'transparent',
               border: 'none',
-              borderRadius: isMobile ? '10px' : '12px',
-              padding: isMobile ? '12px' : '14px',
               cursor: 'pointer',
-              fontSize: isMobile ? '0.95rem' : '1rem',
-              fontWeight: '600',
-              transition: 'all 0.3s ease',
-              minHeight: '48px',
-              boxShadow: '0 4px 12px rgba(244, 67, 54, 0.3)'
-            }}
-            onMouseEnter={(e) => {
-              e.target.style.background = 'linear-gradient(135deg, #d32f2f 0%, #c62828 100%)';
-              e.target.style.transform = 'translateY(-2px)';
-              e.target.style.boxShadow = '0 6px 20px rgba(244, 67, 54, 0.4)';
-            }}
-            onMouseLeave={(e) => {
-              e.target.style.background = 'linear-gradient(135deg, #f44336 0%, #d32f2f 100%)';
-              e.target.style.transform = 'translateY(0)';
-              e.target.style.boxShadow = '0 4px 12px rgba(244, 67, 54, 0.3)';
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              padding: 0,
+              marginBottom: isStatsExpanded ? (isMobile ? '8px' : '14px') : '0',
+              color: '#4caf50'
             }}
           >
-            Reset thống kê
+            <div style={{ 
+              fontSize: isMobile ? '1rem' : '1.1rem', 
+              fontWeight: '700', 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '8px' 
+            }}>
+              📊 Thống kê học tập
+            </div>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              transition: 'transform 0.3s ease',
+              transform: isStatsExpanded ? 'rotate(0deg)' : 'rotate(180deg)'
+            }}>
+              <ChevronDown size={isMobile ? 20 : 24} />
+            </div>
           </button>
+          
+          {isStatsExpanded && (
+            <div style={{
+              opacity: 1,
+              transition: 'opacity 0.3s ease'
+            }}>
+              <div style={{ 
+                display: 'grid', 
+                gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)', 
+                gap: isMobile ? '12px' : '15px',
+                marginBottom: '8px'
+              }}>
+                <div style={{ 
+                  textAlign: 'center',
+                  padding: isMobile ? '12px' : '16px',
+                  background: '#1a202c',
+                  borderRadius: '12px',
+                  border: '1px solid rgba(76, 175, 80, 0.2)'
+                }}>
+                  <div style={{ 
+                    fontSize: isMobile ? '1.8rem' : '2rem', 
+                    fontWeight: 'bold', 
+                    color: '#4caf50',
+                    marginBottom: '4px'
+                  }}>
+                    {stats.correct}
+                  </div>
+                  <div style={{ fontSize: isMobile ? '0.75rem' : '0.85rem', color: '#a0aec0', fontWeight: '500' }}>Đúng</div>
+                </div>
+                <div style={{ 
+                  textAlign: 'center',
+                  padding: isMobile ? '12px' : '16px',
+                  background: '#1a202c',
+                  borderRadius: '12px',
+                  border: '1px solid rgba(255, 152, 0, 0.2)'
+                }}>
+                  <div style={{ 
+                    fontSize: isMobile ? '1.8rem' : '2rem', 
+                    fontWeight: 'bold', 
+                    color: '#ff9800',
+                    marginBottom: '4px'
+                  }}>
+                    {stats.nearlyCorrect}
+                  </div>
+                  <div style={{ fontSize: isMobile ? '0.75rem' : '0.85rem', color: '#a0aec0', fontWeight: '500' }}>Gần đúng</div>
+                </div>
+                <div style={{ 
+                  textAlign: 'center',
+                  padding: isMobile ? '12px' : '16px',
+                  background: '#1a202c',
+                  borderRadius: '12px',
+                  border: '1px solid rgba(244, 67, 54, 0.2)'
+                }}>
+                  <div style={{ 
+                    fontSize: isMobile ? '1.8rem' : '2rem', 
+                    fontWeight: 'bold', 
+                    color: '#f44336',
+                    marginBottom: '4px'
+                  }}>
+                    {stats.incorrect}
+                  </div>
+                  <div style={{ fontSize: isMobile ? '0.75rem' : '0.85rem', color: '#a0aec0', fontWeight: '500' }}>Sai</div>
+                </div>
+                <div style={{ 
+                  textAlign: 'center',
+                  padding: isMobile ? '12px' : '16px',
+                  background: '#1a202c',
+                  borderRadius: '12px',
+                  border: '1px solid rgba(66, 153, 225, 0.2)'
+                }}>
+                  <div style={{ 
+                    fontSize: isMobile ? '1.8rem' : '2rem', 
+                    fontWeight: 'bold', 
+                    color: '#4299e1',
+                    marginBottom: '4px'
+                  }}>
+                    {stats.total}
+                  </div>
+                  <div style={{ fontSize: isMobile ? '0.75rem' : '0.85rem', color: '#a0aec0', fontWeight: '500' }}>Tổng</div>
+                </div>
+              </div>
+              <button 
+                onClick={onResetStats}
+                style={{
+                  width: '100%',
+                  background: 'linear-gradient(135deg, #f44336 0%, #d32f2f 100%)',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: isMobile ? '10px' : '12px',
+                  padding: isMobile ? '12px' : '14px',
+                  cursor: 'pointer',
+                  fontSize: isMobile ? '0.95rem' : '1rem',
+                  fontWeight: '600',
+                  transition: 'all 0.3s ease',
+                  minHeight: '48px',
+                  boxShadow: '0 4px 12px rgba(244, 67, 54, 0.3)'
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.background = 'linear-gradient(135deg, #d32f2f 0%, #c62828 100%)';
+                  e.target.style.transform = 'translateY(-2px)';
+                  e.target.style.boxShadow = '0 6px 20px rgba(244, 67, 54, 0.4)';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.background = 'linear-gradient(135deg, #f44336 0%, #d32f2f 100%)';
+                  e.target.style.transform = 'translateY(0)';
+                  e.target.style.boxShadow = '0 4px 12px rgba(244, 67, 54, 0.3)';
+                }}
+              >
+                Reset thống kê
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Vocabulary Management Section */}
         <div style={{ gridColumn: isMobile ? '1' : '1 / -1', marginTop: '20px' }}>
           <div style={{
-            padding: isMobile ? '8px' : '14px',
+            padding: isMobile ? '20px' : '24px',
             background: 'rgba(102, 126, 234, 0.08)',
             borderRadius: isMobile ? '12px' : '16px',
-            border: '1px solid rgba(102, 126, 234, 0.2)'
+            border: '1px solid rgba(102, 126, 234, 0.2)',
+            transition: 'all 0.3s ease'
           }}>
-            <div style={{ fontSize: isMobile ? '1rem' : '1.1rem', fontWeight: '700', marginBottom: '8px', color: '#667eea', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              📚 Quản lý từ vựng
-            </div>
+            <button
+              onClick={() => setIsVocabExpanded(!isVocabExpanded)}
+              style={{
+                width: '100%',
+                background: 'transparent',
+                border: 'none',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                padding: 0,
+                marginBottom: isVocabExpanded ? (isMobile ? '8px' : '14px') : '0',
+                color: '#667eea'
+              }}
+            >
+              <div style={{ 
+                fontSize: isMobile ? '1rem' : '1.1rem', 
+                fontWeight: '700', 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: '8px' 
+              }}>
+                📚 Quản lý từ vựng
+              </div>
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                transition: 'transform 0.3s ease',
+                transform: isVocabExpanded ? 'rotate(0deg)' : 'rotate(180deg)'
+              }}>
+                <ChevronDown size={isMobile ? 20 : 24} />
+              </div>
+            </button>
             
-            <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: '12px' }}>
-              <button
-                onClick={() => {
-                  onOpenBulkImport();
-                  onClose();
-                }}
-                style={{
-                  flex: 1,
-                  background: 'linear-gradient(135deg, #4caf50 0%, #45a049 100%)',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: isMobile ? '10px' : '12px',
-                  padding: isMobile ? '6px' : '10px',
-                  fontSize: isMobile ? '1rem' : '1.1rem',
-                  fontWeight: '600',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '10px',
-                  transition: 'all 0.3s ease',
-                  boxShadow: '0 4px 15px rgba(76, 175, 80, 0.4)',
-                  minHeight: '48px'
-                }}
-                onMouseEnter={(e) => {
-                  e.target.style.background = 'linear-gradient(135deg, #45a049 0%, #388e3c 100%)';
-                  e.target.style.transform = 'translateY(-2px)';
-                  e.target.style.boxShadow = '0 6px 20px rgba(76, 175, 80, 0.5)';
-                }}
-                onMouseLeave={(e) => {
-                  e.target.style.background = 'linear-gradient(135deg, #4caf50 0%, #45a049 100%)';
-                  e.target.style.transform = 'translateY(0)';
-                  e.target.style.boxShadow = '0 4px 15px rgba(76, 175, 80, 0.4)';
-                }}
-              >
-                <Plus size={20} />
-                Thêm từ vựng
-              </button>
-              
-              <button
-                onClick={() => {
-                  onDeleteVocabulary();
-                  onClose();
-                }}
-                style={{
-                  flex: 1,
-                  background: 'linear-gradient(135deg, #f44336 0%, #d32f2f 100%)',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: isMobile ? '10px' : '12px',
-                  padding: isMobile ? '6px' : '10px',
-                  fontSize: isMobile ? '1rem' : '1.1rem',
-                  fontWeight: '600',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '10px',
-                  transition: 'all 0.3s ease',
-                  boxShadow: '0 4px 15px rgba(244, 67, 54, 0.4)',
-                  minHeight: '48px'
-                }}
-                onMouseEnter={(e) => {
-                  e.target.style.background = 'linear-gradient(135deg, #d32f2f 0%, #c62828 100%)';
-                  e.target.style.transform = 'translateY(-2px)';
-                  e.target.style.boxShadow = '0 6px 20px rgba(244, 67, 54, 0.5)';
-                }}
-                onMouseLeave={(e) => {
-                  e.target.style.background = 'linear-gradient(135deg, #f44336 0%, #d32f2f 100%)';
-                  e.target.style.transform = 'translateY(0)';
-                  e.target.style.boxShadow = '0 4px 15px rgba(244, 67, 54, 0.4)';
-                }}
-              >
-                <X size={20} />
-                Xóa từ vựng
-              </button>
-            </div>
+            {isVocabExpanded && (
+              <div style={{
+                opacity: 1,
+                transition: 'opacity 0.3s ease'
+              }}>
+                <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: '12px' }}>
+                  <button
+                    onClick={() => {
+                      onOpenBulkImport();
+                      onClose();
+                    }}
+                    style={{
+                      flex: 1,
+                      background: 'linear-gradient(135deg, #4caf50 0%, #45a049 100%)',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: isMobile ? '10px' : '12px',
+                      padding: isMobile ? '6px' : '10px',
+                      fontSize: isMobile ? '1rem' : '1.1rem',
+                      fontWeight: '600',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '10px',
+                      transition: 'all 0.3s ease',
+                      boxShadow: '0 4px 15px rgba(76, 175, 80, 0.4)',
+                      minHeight: '48px'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.target.style.background = 'linear-gradient(135deg, #45a049 0%, #388e3c 100%)';
+                      e.target.style.transform = 'translateY(-2px)';
+                      e.target.style.boxShadow = '0 6px 20px rgba(76, 175, 80, 0.5)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.target.style.background = 'linear-gradient(135deg, #4caf50 0%, #45a049 100%)';
+                      e.target.style.transform = 'translateY(0)';
+                      e.target.style.boxShadow = '0 4px 15px rgba(76, 175, 80, 0.4)';
+                    }}
+                  >
+                    <Plus size={20} />
+                    Thêm từ vựng
+                  </button>
+                  
+                  <button
+                    onClick={() => {
+                      setShowDeleteConfirm(true);
+                    }}
+                    style={{
+                      flex: 1,
+                      background: 'linear-gradient(135deg, #f44336 0%, #d32f2f 100%)',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: isMobile ? '10px' : '12px',
+                      padding: isMobile ? '6px' : '10px',
+                      fontSize: isMobile ? '1rem' : '1.1rem',
+                      fontWeight: '600',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '10px',
+                      transition: 'all 0.3s ease',
+                      boxShadow: '0 4px 15px rgba(244, 67, 54, 0.4)',
+                      minHeight: '48px'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.target.style.background = 'linear-gradient(135deg, #d32f2f 0%, #c62828 100%)';
+                      e.target.style.transform = 'translateY(-2px)';
+                      e.target.style.boxShadow = '0 6px 20px rgba(244, 67, 54, 0.5)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.target.style.background = 'linear-gradient(135deg, #f44336 0%, #d32f2f 100%)';
+                      e.target.style.transform = 'translateY(0)';
+                      e.target.style.boxShadow = '0 4px 15px rgba(244, 67, 54, 0.4)';
+                    }}
+                  >
+                    <X size={20} />
+                    Xóa từ vựng
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
@@ -555,6 +636,25 @@ const Settings = ({
           </button>
         </div>
       </div>
+
+      {/* Confirm Delete Dialog */}
+      <ConfirmDialog
+        isOpen={showDeleteConfirm}
+        onClose={() => setShowDeleteConfirm(false)}
+        onConfirm={async () => {
+          await onDeleteVocabulary();
+          onClose();
+          // Tự động mở modal thêm từ vựng sau khi xóa xong
+          setTimeout(() => {
+            onOpenBulkImport();
+          }, 300);
+        }}
+        title="Xóa tất cả từ vựng?"
+        message="Bạn có chắc chắn muốn xóa TẤT CẢ từ vựng? Hành động này không thể hoàn tác! Chỉ còn lại từ 'xin chào - hello'."
+        confirmText="Xác nhận xóa"
+        cancelText="Huỷ"
+        isMobile={isMobile}
+      />
     </div>
   );
 };

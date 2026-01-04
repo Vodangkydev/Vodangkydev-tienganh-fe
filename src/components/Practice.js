@@ -1,6 +1,7 @@
 import React from 'react';
 import { Star, Volume2, ListChecks, Eye, RotateCcw, AlertCircle, XCircle, Settings } from 'lucide-react';
 import { getWordId } from '../utils/helpers';
+import { speakText } from '../utils/soundUtils';
 import '../styles/practice.css';
 
 // Compact Icons Component (tạm thời, có thể tách ra sau)
@@ -39,6 +40,7 @@ const Practice = ({
   limitedFilteredWords,
   practiceCompleted,
   practiceResults,
+  setPracticeCompleted,
   showPracticeSettings,
   setShowPracticeSettings,
   showSettings,
@@ -59,10 +61,14 @@ const Practice = ({
   setLanguageMode,
   setWordFilter,
   resetPractice,
-  setPracticeCompleted,
   speakWord
 }) => {
   if (!currentWord) return null;
+
+  // Wrapper to ensure sound plays when clicking next button
+  const handleNextWithSound = () => {
+    handleNext(false); // Explicitly pass false to ensure sound plays
+  };
 
   // Practice completed screen
   if (practiceCompleted) {
@@ -151,7 +157,7 @@ const Practice = ({
             const resultText = result === 'correct' ? '✓ Đúng' : result === 'nearly-correct' ? '~ Gần đúng' : '✗ Sai';
             
             return (
-              <div key={wordId} style={{
+              <div key={word.id} style={{
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
@@ -563,8 +569,10 @@ const Practice = ({
               onClick={() => {
                 if (isAnswered) {
                   if (wordIndex === limitedFilteredWords.length - 1) {
+                    // Hiển thị kết quả khi nhấn nút "Kết quả"
                     setPracticeCompleted(true);
                   } else {
+                    // Cho phép chuyển tiếp thủ công dù đúng hay sai
                     handleNext();
                   }
                 } else if (!isAnswered) {
@@ -775,7 +783,7 @@ const Practice = ({
             </button>
             
             <button 
-              onClick={handleNext}
+              onClick={handleNextWithSound}
               className="nav-button"
               style={{
                 background: 'linear-gradient(135deg, #4caf50 0%, #45a049 100%)',
