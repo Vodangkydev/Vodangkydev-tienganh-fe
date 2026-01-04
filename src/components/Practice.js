@@ -72,7 +72,7 @@ const Practice = ({
     handleNext(false); // Explicitly pass false to ensure sound plays
   };
 
-  // Handle input focus - scroll word display to top of screen smoothly on mobile
+  // Handle input focus - scroll to top immediately when clicking input
   const handleInputFocus = (e) => {
     // Style changes
     e.target.style.borderColor = '#667eea';
@@ -80,12 +80,9 @@ const Practice = ({
     e.target.style.transform = 'translateY(-1px)';
     e.target.style.background = 'rgba(255, 255, 255, 0.95)';
     
-    // Scroll to top smoothly on mobile for better UX
+    // Scroll to top immediately (no animation, instant)
     if (isMobile) {
-      // Use requestAnimationFrame to ensure smooth scroll on mobile
-      requestAnimationFrame(() => {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      });
+      window.scrollTo(0, 0);
     }
   };
 
