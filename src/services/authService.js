@@ -34,7 +34,11 @@ export const authService = {
 
   // Login
   login: async (username, password) => {
-    const response = await axios.post(`${API_BASE_URL}/login`, {
+    const loginUrl = `${API_BASE_URL}/login`;
+    console.log('Login request URL:', loginUrl);
+    console.log('API_BASE_URL:', API_BASE_URL);
+    
+    const response = await axios.post(loginUrl, {
       username,
       password
     });
@@ -53,7 +57,11 @@ export const authService = {
 
   // Register
   register: async (username, password) => {
-    const response = await axios.post(`${API_BASE_URL}/register`, {
+    const registerUrl = `${API_BASE_URL}/register`;
+    console.log('Register request URL:', registerUrl);
+    console.log('API_BASE_URL:', API_BASE_URL);
+    
+    const response = await axios.post(registerUrl, {
       username,
       password
     });

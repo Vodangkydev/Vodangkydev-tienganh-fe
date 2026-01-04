@@ -31,7 +31,10 @@ export const useAuth = (onToast) => {
     } catch (err) {
       let errorMessage = 'Sai thông tin';
       
-      if (err.response) {
+      // Kiểm tra Network Error (không kết nối được server)
+      if (err.code === 'ERR_NETWORK' || err.message === 'Network Error') {
+        errorMessage = 'Không thể kết nối đến server. Vui lòng kiểm tra kết nối mạng hoặc thử lại sau.';
+      } else if (err.response) {
         const statusCode = err.response.status;
         const serverMessage = err.response.data?.message || err.response.data?.error || '';
         
@@ -47,6 +50,10 @@ export const useAuth = (onToast) => {
         }
       } else {
         console.log('Login error - No response:', err);
+        // Nếu không phải network error và không có response, có thể là timeout hoặc lỗi khác
+        if (!err.code || err.code !== 'ERR_NETWORK') {
+          errorMessage = 'Đã xảy ra lỗi. Vui lòng thử lại sau.';
+        }
       }
       
       console.log('Login - Final error message:', errorMessage);
@@ -69,9 +76,12 @@ export const useAuth = (onToast) => {
       onToast(`Chào mừng ${username}!`, 'success');
       return { success: true };
     } catch (err) {
-      let errorMessage = 'Tài khoản đã tồn tại. Vui lòng chọn tên đăng nhập khác.';
+      let errorMessage = 'Đã xảy ra lỗi. Vui lòng thử lại.';
       
-      if (err.response) {
+      // Kiểm tra Network Error (không kết nối được server)
+      if (err.code === 'ERR_NETWORK' || err.message === 'Network Error') {
+        errorMessage = 'Không thể kết nối đến server. Vui lòng kiểm tra kết nối mạng hoặc thử lại sau.';
+      } else if (err.response) {
         const statusCode = err.response.status;
         const serverMessage = err.response.data?.message || err.response.data?.error || '';
         
@@ -87,6 +97,10 @@ export const useAuth = (onToast) => {
         }
       } else {
         console.log('Register error - No response:', err);
+        // Nếu không phải network error và không có response, có thể là timeout hoặc lỗi khác
+        if (!err.code || err.code !== 'ERR_NETWORK') {
+          errorMessage = 'Đã xảy ra lỗi. Vui lòng thử lại sau.';
+        }
       }
       
       console.log('Register - Final error message:', errorMessage);

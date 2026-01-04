@@ -9,15 +9,13 @@ import { API_BASE_URL } from '../utils/constants';
  * @param {Function} loadUserStats - Function to reload user stats
  * @param {string} languageMode - Language mode: 'vietnamese' or 'english'
  * @param {boolean} autoAdvance - Whether to auto advance on correct answer
- * @param {Function} handleNext - Function to move to next word
  * @returns {Object} Practice state and handlers
  */
 export const usePractice = (
   showToast,
   loadUserStats,
   languageMode,
-  autoAdvance,
-  handleNext
+  autoAdvance
 ) => {
   const [userInput, setUserInput] = useState('');
   const [feedback, setFeedback] = useState(null);
@@ -48,7 +46,7 @@ export const usePractice = (
   }, [resetWordState]);
 
   // Handle submit answer
-  const handleSubmit = useCallback(async (currentWord, wordIndex, filteredWords) => {
+  const handleSubmit = useCallback(async (currentWord, wordIndex, filteredWords, handleNext) => {
     if (!userInput.trim() || !currentWord) return;
     
     // Mark practice as started
@@ -87,7 +85,7 @@ export const usePractice = (
       // Auto advance only on correct answer (not on last word)
       const isLastWord = wordIndex === filteredWords.length - 1;
       
-      if (!isLastWord && result === 'correct') {
+      if (!isLastWord && result === 'correct' && autoAdvance && handleNext && typeof handleNext === 'function') {
         setTimeout(() => {
           handleNext();
         }, 1500);
@@ -96,7 +94,7 @@ export const usePractice = (
       console.error('Error checking answer:', err);
       showToast('Không thể kiểm tra đáp án. Vui lòng thử lại.', 'error');
     }
-  }, [userInput, practiceStarted, languageMode, loadUserStats, handleNext, showToast]);
+  }, [userInput, practiceStarted, languageMode, autoAdvance, loadUserStats, showToast]);
 
   // Handle retry
   const handleRetry = useCallback(() => {

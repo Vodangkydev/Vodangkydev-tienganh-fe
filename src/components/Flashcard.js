@@ -1,5 +1,5 @@
-import React from 'react';
-import { Star, Volume2, Sliders } from 'lucide-react';
+import React, { useRef } from 'react';
+import { Star, Volume2, ListChecks } from 'lucide-react';
 import { getWordId } from '../utils/helpers';
 import { speakText, playFlipSound } from '../utils/soundUtils';
 import '../styles/flashcard.css';
@@ -28,25 +28,62 @@ const Flashcard = ({
   setLanguageMode,
   setFlashcardFavoritesOnly,
   handleNext,
-  handlePrevious
+  handlePrevious,
+  handleTouchStart,
+  handleTouchEnd
 }) => {
+  const touchStartRef = useRef(null);
+  const isSwipingRef = useRef(false);
+
   if (!currentWord) return null;
 
-  const handleFlip = () => {
+  // Function to speak English only
+  const speakEnglish = () => {
+    speakText(currentWord.english, 'en-US');
+  };
+
+  const handleFlip = (e) => {
+    // Prevent flip if it was a swipe gesture
+    if (isSwipingRef.current) {
+      isSwipingRef.current = false;
+      return;
+    }
     setIsFlipped(!isFlipped);
     playFlipSound();
   };
 
-  const handleTouchStart = (e) => {
-    if (!flashcardMode) return;
+  const onCardTouchStart = (e) => {
     const touch = e.touches[0];
-    // Store touch start position if needed
+    touchStartRef.current = { x: touch.clientX, y: touch.clientY };
+    isSwipingRef.current = false;
+    // Call useSwipe handler first
+    if (handleTouchStart) {
+      handleTouchStart(e);
+    }
   };
 
-  const handleTouchEnd = (e) => {
-    if (!flashcardMode) return;
-    const touch = e.changedTouches[0];
-    // Handle swipe logic if needed
+  const onCardTouchEnd = (e) => {
+    // Call useSwipe handler first to detect swipe
+    if (handleTouchEnd) {
+      handleTouchEnd(e);
+    }
+    
+    // Then check if it was a swipe to prevent flip
+    if (touchStartRef.current) {
+      const touchEnd = e.changedTouches[0];
+      const deltaX = Math.abs(touchEnd.clientX - touchStartRef.current.x);
+      const deltaY = Math.abs(touchEnd.clientY - touchStartRef.current.y);
+      
+      // If horizontal movement is significant, it's a swipe
+      if (deltaX > 50 && deltaX > deltaY) {
+        isSwipingRef.current = true;
+        // Reset after a short delay to allow navigation
+        setTimeout(() => {
+          isSwipingRef.current = false;
+        }, 300);
+      }
+      touchStartRef.current = null;
+    }
   };
 
   return (
@@ -55,8 +92,8 @@ const Flashcard = ({
         <div 
           className="flashcard"
           onClick={handleFlip}
-          onTouchStart={handleTouchStart}
-          onTouchEnd={handleTouchEnd}
+          onTouchStart={onCardTouchStart}
+          onTouchEnd={onCardTouchEnd}
           style={{
             cursor: 'pointer',
             width: '100%',
@@ -66,7 +103,7 @@ const Flashcard = ({
             transition: 'transform 0.6s',
             transform: isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)',
             transformStyle: 'preserve-3d',
-            touchAction: 'pan-y'
+            touchAction: 'pan-x pan-y'
           }}
         >
           {/* Front of card */}
@@ -157,11 +194,7 @@ const Flashcard = ({
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  if (languageMode === 'vietnamese') {
-                    speakText(currentWord.vietnamese, 'vi-VN');
-                  } else {
-                    speakText(currentWord.english, 'en-US');
-                  }
+                  speakEnglish();
                 }}
                 style={{
                   background: 'transparent',
@@ -285,11 +318,7 @@ const Flashcard = ({
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  if (languageMode === 'vietnamese') {
-                    speakText(currentWord.english, 'en-US');
-                  } else {
-                    speakText(currentWord.vietnamese, 'vi-VN');
-                  }
+                  speakEnglish();
                 }}
                 style={{
                   background: 'transparent',
@@ -369,7 +398,7 @@ const Flashcard = ({
             }}
             title="Cài đặt flashcard"
           >
-            <Sliders size={isMobile ? 22 : 24} />
+            <ListChecks size={isMobile ? 20 : 22} />
           </button>
           
           {/* Dropdown menu */}

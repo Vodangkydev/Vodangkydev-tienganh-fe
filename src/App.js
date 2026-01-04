@@ -122,7 +122,8 @@ function App() {
     maxQuestions,
     favorites,
     showToast,
-    setStats
+    setStats,
+    soundEnabled
   );
 
   // Update current word when wordIndex or filtered words change
@@ -272,8 +273,7 @@ function App() {
     showToast,
     loadUserStats,
     languageMode,
-    autoAdvance,
-    null // handleNext will be set after creation
+    autoAdvance
   );
 
   // Navigation handlers
@@ -319,9 +319,11 @@ function App() {
   }, [wordIndex, flashcardMode, limitedFlashcardFilteredWords, limitedFilteredWords, practice]);
 
   // Swipe gesture handlers (must be after handleNext and handlePrevious are defined)
+  // Vuốt qua phải = chuyển tiếp (next), Vuốt qua trái = lùi (previous)
+  // Note: deltaX > 0 = swipe right, deltaX < 0 = swipe left
   const { handleTouchStart, handleTouchEnd } = useSwipe(
-    handlePrevious,
-    handleNext,
+    handlePrevious, // onSwipeLeft -> previous (vuốt trái = lùi)
+    handleNext,      // onSwipeRight -> next (vuốt phải = chuyển tiếp)
     flashcardMode
   );
 
@@ -373,7 +375,7 @@ function App() {
   const handleKeyPress = (e) => {
     if (e.key === 'Enter' && !loading) {
       if (!practice.isAnswered && !quizMode) {
-        practice.handleSubmit(currentWord, wordIndex, filteredWords);
+        practice.handleSubmit(currentWord, wordIndex, filteredWords, handleNext);
       } else if (!quizMode && practice.feedback?.result === 'correct' && !autoAdvance) {
         // Chỉ chuyển từ thủ công nếu không bật autoAdvance
         handleNext();
@@ -390,7 +392,9 @@ function App() {
       try {
         // Get hint from server
         const wordId = getWordId(currentWord);
-        const response = await axios.get(`${API_BASE_URL}/hint/${wordId}`);
+        const response = await axios.get(`${API_BASE_URL}/hint/${wordId}`, {
+          params: { difficulty }
+        });
         practice.setWordHint(response.data.hint);
         practice.setShowHint(true);
       } catch (err) {
@@ -460,10 +464,10 @@ function App() {
           <div style={{ marginBottom: '30px' }}>
             <img src="/cloud-icon.png" alt="Cloud Logo" style={{ width: '64px', height: '64px', marginBottom: '20px' }} />
             <h2 style={{ marginBottom: '15px', color: '#2d3748' }}>
-              Chào mừng đến với ứng dụng học tiếng Anh!
+              Chào mừng đến với ứng dụng học tiếng Anh
             </h2>
             <p style={{ color: '#6c757d', marginBottom: '30px', lineHeight: '1.6' }}>
-              Nhập tên người dùng để quản lý từ vựng cá nhân và theo dõi tiến độ học tập.
+              Nhập tên người dùng và mật khẩu để quản lý từ vựng cá nhân và theo dõi tiến độ học tập.
             </p>
           </div>
           
@@ -503,7 +507,12 @@ function App() {
           <div style={{ marginTop: '30px', padding: '20px', background: 'rgba(102, 126, 234, 0.1)', borderRadius: '12px' }}>
             <h3 style={{ marginBottom: '10px', color: '#667eea' }}>Hướng dẫn sử dụng:</h3>
             <p style={{ margin: '5px 0', fontSize: '0.9rem', color: '#6c757d' }}>
-              • Nhập tên người dùng để đăng nhập (ví dụ: vodangky312)
+              • Nhập tên người dùng và mật khẩu để đăng nhập
+             
+              <br />
+              <strong>Tên người dùng:</strong> vodangky312
+              <br />
+              <strong>Mật khẩu:</strong> 123456
             </p>
             <p style={{ margin: '5px 0', fontSize: '0.9rem', color: '#6c757d' }}>
               • Nếu chưa có tài khoản, hệ thống sẽ tự động tạo mới
@@ -1003,6 +1012,8 @@ function App() {
             setFlashcardFavoritesOnly={setFlashcardFavoritesOnly}
             handleNext={handleNext}
             handlePrevious={handlePrevious}
+            handleTouchStart={handleTouchStart}
+            handleTouchEnd={handleTouchEnd}
           />
         ) : quizMode ? (
           <Quiz
@@ -1065,7 +1076,7 @@ function App() {
             autoAdvance={autoAdvance}
             toggleHint={toggleHint}
             toggleFavorite={toggleFavorite}
-            handleSubmit={(e) => practice.handleSubmit(currentWord, wordIndex, filteredWords)}
+            handleSubmit={(e) => practice.handleSubmit(currentWord, wordIndex, filteredWords, handleNext)}
             handleNext={handleNext}
             handlePrevious={handlePrevious}
             handleRetry={practice.handleRetry}
@@ -1074,6 +1085,7 @@ function App() {
             setLanguageMode={setLanguageMode}
             setWordFilter={setWordFilter}
             resetPractice={resetPractice}
+            setPracticeCompleted={practice.setPracticeCompleted}
             speakWord={speakWord}
           />
         )}

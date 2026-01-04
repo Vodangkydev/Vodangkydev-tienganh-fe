@@ -1,5 +1,5 @@
 import React from 'react';
-import { Star, Volume2, Sliders } from 'lucide-react';
+import { Star, Volume2, ListChecks } from 'lucide-react';
 import { speakText } from '../utils/soundUtils';
 import '../styles/quiz.css';
 
@@ -123,25 +123,39 @@ const Quiz = ({
       {/* Header */}
       <div style={{ 
         display: 'flex', 
+        flexDirection: isMobile ? 'column' : 'row',
         justifyContent: 'space-between', 
-        alignItems: 'center',
-        marginBottom: '8px',
-        gap: '12px'
+        alignItems: isMobile ? 'flex-start' : 'center',
+        marginBottom: isMobile ? '12px' : '8px',
+        gap: isMobile ? '8px' : '12px'
       }}>
-        <div style={{ fontSize: isMobile ? '0.95rem' : '1rem', opacity: 0.9, flex: 1 }}>
+        <div style={{ 
+          fontSize: isMobile ? '0.875rem' : '1rem', 
+          opacity: 0.9, 
+          flex: 1,
+          lineHeight: '1.5',
+          wordBreak: 'break-word'
+        }}>
           {quizCompleted && quizView === 'detail'
             ? 'Danh sách câu hỏi và đáp án của bạn'
             : languageMode === 'vietnamese'
               ? 'Chọn nghĩa tiếng Việt đúng cho mỗi từ tiếng Anh'
               : 'Chọn từ tiếng Anh đúng cho mỗi nghĩa tiếng Việt'}
         </div>
-        <div style={{ fontSize: isMobile ? '0.9rem' : '0.95rem', opacity: 0.8 }}>
-          {answeredCount}/{totalDisplayed}
-        </div>
-        
-        {/* Settings button */}
-        {!quizCompleted && (
-          <div data-quiz-settings style={{ position: 'relative', marginLeft: '6px' }}>
+        <div style={{ 
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          width: isMobile ? '100%' : 'auto',
+          justifyContent: isMobile ? 'space-between' : 'flex-end'
+        }}>
+          <div style={{ fontSize: isMobile ? '0.875rem' : '0.95rem', opacity: 0.8 }}>
+            {answeredCount}/{totalDisplayed}
+          </div>
+          
+          {/* Settings button */}
+          {!quizCompleted && (
+            <div data-quiz-settings style={{ position: 'relative' }}>
             <button 
               onClick={() => setShowQuizSettings(prev => !prev)}
               style={{
@@ -171,7 +185,7 @@ const Quiz = ({
               }}
               title="Cài đặt trắc nghiệm"
             >
-              <Sliders size={isMobile ? 20 : 22} />
+              <ListChecks size={isMobile ? 20 : 22} />
             </button>
             
             {/* Settings dropdown */}
@@ -180,7 +194,7 @@ const Quiz = ({
                 style={{
                   position: 'absolute',
                   top: '100%',
-                  right: 0,
+                  right: isMobile ? '0' : '0',
                   marginTop: '8px',
                   background: 'white',
                   borderRadius: '12px',
@@ -188,20 +202,54 @@ const Quiz = ({
                   zIndex: 1000,
                   overflow: 'hidden',
                   border: '1px solid rgba(102,126,234,0.2)',
-                  minWidth: '200px'
+                  minWidth: isMobile ? '180px' : '200px',
+                  width: isMobile ? 'calc(100vw - 64px)' : 'auto',
+                  maxWidth: isMobile ? '280px' : 'none'
                 }}
               >
                 <button
                   onClick={() => {
+                    // Calculate new sort mode first
+                    const sortModes = ['newest', 'shuffle'];
+                    const currentIndex = sortModes.indexOf(sortMode);
+                    const nextIndex = (currentIndex + 1) % sortModes.length;
+                    const newSortMode = sortModes[nextIndex];
+                    
+                    // Call handleSortModeChange to update state
                     handleSortModeChange();
-                    const wordsToUse = filteredWords;
+                    
+                    // Create a shuffled or sorted copy of filteredWords based on newSortMode
+                    let wordsToUse = [...filteredWords];
+                    if (newSortMode === 'shuffle') {
+                      // Shuffle the array - tích vào là ngẫu nhiên
+                      for (let i = wordsToUse.length - 1; i > 0; i--) {
+                        const j = Math.floor(Math.random() * (i + 1));
+                        [wordsToUse[i], wordsToUse[j]] = [wordsToUse[j], wordsToUse[i]];
+                      }
+                    } else if (newSortMode === 'newest') {
+                      // Sort by newest (created_at descending, or by ID) - không tích là từ mới nhất dùng trước
+                      wordsToUse.sort((a, b) => {
+                        if (a.created_at && b.created_at) {
+                          return new Date(b.created_at) - new Date(a.created_at);
+                        }
+                        const aId = getWordId(a);
+                        const bId = getWordId(b);
+                        if (typeof aId === 'string' && typeof bId === 'string') {
+                          return bId.localeCompare(aId);
+                        }
+                        return (bId || 0) - (aId || 0);
+                      });
+                    }
+                    
                     if (wordsToUse && wordsToUse.length >= 4) {
                       const total = Math.min(maxQuestions, wordsToUse.length);
                       const quizWords = wordsToUse.slice(0, total);
+                      // Tạo lại questions với options được shuffle lại
                       const questions = quizWords.map((word) => ({
                         wordId: getWordId(word),
                         english: word.english,
                         vietnamese: word.vietnamese,
+                        // buildQuizOptions sẽ tự động shuffle các đáp án (câu chính và câu phụ)
                         options: buildQuizOptions(word, wordsToUse, languageMode),
                         selectedIndex: null
                       }));
@@ -229,7 +277,7 @@ const Quiz = ({
                     display: 'flex',
                     alignItems: 'center',
                     gap: '10px',
-                    transition: 'background 0.2s'
+                    transition: 'none'
                   }}
                   onMouseEnter={(e) => e.target.style.background = sortMode === 'shuffle' ? 'rgba(102, 126, 234, 0.15)' : 'rgba(108, 117, 125, 0.08)'}
                   onMouseLeave={(e) => e.target.style.background = sortMode === 'shuffle' ? 'rgba(102, 126, 234, 0.1)' : 'transparent'}
@@ -318,18 +366,20 @@ const Quiz = ({
                 </button>
               </div>
             )}
-          </div>
-        )}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Questions list */}
       <div style={{ 
         display: 'flex', 
         flexDirection: 'column', 
-        gap: '18px', 
-        maxHeight: isMobile ? '600px' : '750px',
+        gap: isMobile ? '16px' : '18px', 
+        maxHeight: isMobile ? 'calc(100vh - 280px)' : '750px',
         overflowY: 'auto',
-        paddingRight: '8px'
+        paddingRight: isMobile ? '4px' : '8px',
+        marginRight: isMobile ? '-4px' : '0'
       }}>
         {displayedQuestions.map((q, qIndex) => {
           const questionText = languageMode === 'vietnamese' ? q.english : q.vietnamese;
@@ -340,28 +390,42 @@ const Quiz = ({
             <div 
               id={`quiz-question-${qIndex}`}
               key={q.wordId || qIndex} 
-              style={{ paddingBottom: '6px', borderBottom: '1px dashed rgba(148, 163, 184, 0.4)' }}
+              style={{ 
+                paddingBottom: isMobile ? '12px' : '6px', 
+                borderBottom: '1px dashed rgba(148, 163, 184, 0.4)'
+              }}
             >
               <div style={{ 
-                marginBottom: '8px', 
-                fontSize: isMobile ? '1.1rem' : '1.3rem', 
+                marginBottom: isMobile ? '10px' : '8px', 
+                fontSize: isMobile ? '1rem' : '1.3rem', 
                 fontWeight: 600,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
-                gap: '8px'
+                gap: isMobile ? '6px' : '8px',
+                flexWrap: isMobile ? 'wrap' : 'nowrap'
               }}>
-                <span>
+                <span style={{ 
+                  flex: 1,
+                  minWidth: 0,
+                  wordBreak: 'break-word',
+                  lineHeight: '1.4'
+                }}>
                   {qIndex + 1}. {questionText}
                 </span>
-                <div style={{display:'flex',alignItems:'center',gap:'7px'}}>
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: isMobile ? '4px' : '7px',
+                  flexShrink: 0
+                }}>
                   <button
                     onClick={() => speakWord(speakTextContent, speakLang)}
                     style={{
                       background: 'transparent',
                       border: 'none',
                       cursor: 'pointer',
-                      padding: '6px',
+                      padding: isMobile ? '4px' : '6px',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
@@ -381,7 +445,7 @@ const Quiz = ({
                       e.target.style.color = 'rgba(255, 255, 255, 0.8)';
                     }}
                   >
-                    <Volume2 size={20} />
+                    <Volume2 size={isMobile ? 18 : 20} />
                   </button>
                   <button
                     onClick={() => {
@@ -401,7 +465,7 @@ const Quiz = ({
                     title={favorites.includes(q.wordId) ? 'Bỏ yêu thích' : 'Thêm vào yêu thích'}
                   >
                     <Star 
-                      size={20}
+                      size={isMobile ? 18 : 20}
                       fill={favorites.includes(q.wordId) ? '#ffc107' : 'none'}
                       color={favorites.includes(q.wordId) ? '#ffc107' : '#9ca3af'}
                     />
@@ -410,8 +474,8 @@ const Quiz = ({
               </div>
               <div style={{
                 display: 'grid',
-                gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',
-                gap: '10px'
+                gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, 1fr)',
+                gap: isMobile ? '8px' : '10px'
               }}>
                 {q.options.map((opt, idx) => {
                   const isSelected = q.selectedIndex === idx;
@@ -438,15 +502,17 @@ const Quiz = ({
                       disabled={quizCompleted}
                       className={`quiz-option ${isSelected ? 'selected' : ''} ${quizCompleted && opt.correct ? 'correct' : ''} ${quizCompleted && isSelected && !opt.correct ? 'incorrect' : ''}`}
                       style={{
-                        padding: isMobile ? '10px' : '12px 14px',
+                        padding: isMobile ? '12px' : '12px 14px',
                         borderRadius: '12px',
                         border,
                         background: bg,
                         color: 'white',
                         cursor: quizCompleted ? 'default' : 'pointer',
                         textAlign: 'left',
-                        fontSize: isMobile ? '0.95rem' : '1rem',
-                        transition: 'all 0.2s ease'
+                        fontSize: isMobile ? '0.9rem' : '1rem',
+                        transition: 'all 0.2s ease',
+                        wordBreak: 'break-word',
+                        lineHeight: '1.5'
                       }}
                     >
                       {opt.text}

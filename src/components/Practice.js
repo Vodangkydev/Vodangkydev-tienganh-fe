@@ -1,7 +1,6 @@
 import React from 'react';
-import { Star, Volume2, Settings, Eye, RotateCcw, AlertCircle, XCircle } from 'lucide-react';
+import { Star, Volume2, ListChecks, Eye, RotateCcw, AlertCircle, XCircle, Settings } from 'lucide-react';
 import { getWordId } from '../utils/helpers';
-import { speakText } from '../utils/soundUtils';
 import '../styles/practice.css';
 
 // Compact Icons Component (tạm thời, có thể tách ra sau)
@@ -60,6 +59,7 @@ const Practice = ({
   setLanguageMode,
   setWordFilter,
   resetPractice,
+  setPracticeCompleted,
   speakWord
 }) => {
   if (!currentWord) return null;
@@ -145,12 +145,13 @@ const Practice = ({
           marginBottom: '20px'
         }}>
           {limitedFilteredWords.map((word) => {
-            const result = practiceResults[word.id];
+            const wordId = getWordId(word);
+            const result = practiceResults[wordId];
             const resultColor = result === 'correct' ? '#4caf50' : result === 'nearly-correct' ? '#ff9800' : '#f44336';
             const resultText = result === 'correct' ? '✓ Đúng' : result === 'nearly-correct' ? '~ Gần đúng' : '✗ Sai';
             
             return (
-              <div key={word.id} style={{
+              <div key={wordId} style={{
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
@@ -304,7 +305,7 @@ const Practice = ({
           </div>
           
           {/* Settings button */}
-          <div data-practice-settings style={{ position: 'relative' }}>
+          <div data-practice-settings style={{ position: 'relative', marginRight: '8px' }}>
             <button 
               onClick={() => setShowPracticeSettings(prev => !prev)}
               style={{
@@ -318,23 +319,23 @@ const Practice = ({
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                boxShadow: '0 4px 16px rgba(102, 126, 234, 0.3)',
+                boxShadow: 'none',
                 flexShrink: 0,
                 transition: 'all 0.18s cubic-bezier(.4,0,.2,1)'
               }}
               onMouseEnter={(e) => {
                 e.target.style.background = 'linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%)';
                 e.target.style.transform = 'translateY(-2px) scale(1.05)';
-                e.target.style.boxShadow = '0 6px 20px rgba(102, 126, 234, 0.4)';
+                e.target.style.boxShadow = 'none';
               }}
               onMouseLeave={(e) => {
                 e.target.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
                 e.target.style.transform = 'translateY(0) scale(1)';
-                e.target.style.boxShadow = '0 4px 16px rgba(102, 126, 234, 0.3)';
+                e.target.style.boxShadow = 'none';
               }}
               title="Cài đặt luyện tập"
             >
-              <Settings size={isMobile ? 20 : 22} />
+              <ListChecks size={isMobile ? 20 : 22} />
             </button>
             
             {/* Settings dropdown */}
@@ -562,8 +563,8 @@ const Practice = ({
               onClick={() => {
                 if (isAnswered) {
                   if (wordIndex === limitedFilteredWords.length - 1) {
-                    // Will be handled by parent
-                  } else if (!autoAdvance) {
+                    setPracticeCompleted(true);
+                  } else {
                     handleNext();
                   }
                 } else if (!isAnswered) {
@@ -607,7 +608,9 @@ const Practice = ({
               }}
             >
               {isAnswered 
-                ? (wordIndex === limitedFilteredWords.length - 1 ? 'Kết quả' : (!autoAdvance ? 'Tiếp' : 'Kiểm tra'))
+                ? (wordIndex === limitedFilteredWords.length - 1 
+                    ? 'Kết quả' 
+                    : 'Tiếp')
                 : 'Kiểm tra'}
             </button>
           </div>
@@ -852,19 +855,19 @@ const Practice = ({
                 justifyContent: 'center',
                 transition: 'all 0.3s ease',
                 fontSize: isMobile ? '1rem' : '1.1rem',
-                boxShadow: '0 4px 15px rgba(102, 126, 234, 0.4)',
+                boxShadow: 'none',
                 position: 'relative',
                 overflow: 'hidden'
               }}
               onMouseEnter={(e) => {
                 e.target.style.background = 'linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%)';
                 e.target.style.transform = 'translateY(-3px) scale(1.08)';
-                e.target.style.boxShadow = '0 8px 25px rgba(102, 126, 234, 0.6)';
+                e.target.style.boxShadow = 'none';
               }}
               onMouseLeave={(e) => {
                 e.target.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
                 e.target.style.transform = 'translateY(0) scale(1)';
-                e.target.style.boxShadow = '0 4px 15px rgba(102, 126, 234, 0.4)';
+                e.target.style.boxShadow = 'none';
               }}
               title="Cài đặt"
             >
@@ -888,7 +891,7 @@ const Practice = ({
                 transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                 fontSize: isMobile ? '0.65rem' : '0.7rem',
                 fontWeight: 'bold',
-                boxShadow: '0 4px 15px rgba(255, 154, 158, 0.4)',
+                boxShadow: 'none',
                 backdropFilter: 'blur(10px)',
                 WebkitBackdropFilter: 'blur(10px)',
                 position: 'relative',
@@ -897,12 +900,12 @@ const Practice = ({
               onMouseEnter={(e) => {
                 e.target.style.background = 'linear-gradient(135deg, #ff8a95 0%, #fecfef 100%)';
                 e.target.style.transform = 'translateY(-3px) scale(1.08)';
-                e.target.style.boxShadow = '0 8px 25px rgba(255, 154, 158, 0.6)';
+                e.target.style.boxShadow = 'none';
               }}
               onMouseLeave={(e) => {
                 e.target.style.background = 'linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)';
                 e.target.style.transform = 'translateY(0) scale(1)';
-                e.target.style.boxShadow = '0 4px 15px rgba(255, 154, 158, 0.4)';
+                e.target.style.boxShadow = 'none';
               }}
               title="Mẹo và hướng dẫn"
             >

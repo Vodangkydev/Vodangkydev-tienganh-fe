@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
 import { getWordId, buildQuizOptions } from '../utils/helpers';
+import { playFlipSound } from '../utils/soundUtils';
 
 /**
  * Custom hook for managing quiz state and logic
@@ -9,6 +10,7 @@ import { getWordId, buildQuizOptions } from '../utils/helpers';
  * @param {Array} favorites - Array of favorite word IDs
  * @param {Function} showToast - Toast notification function
  * @param {Function} setStats - Function to update stats
+ * @param {boolean} soundEnabled - Whether sound is enabled
  * @returns {Object} Quiz state and handlers
  */
 export const useQuiz = (
@@ -17,7 +19,8 @@ export const useQuiz = (
   maxQuestions,
   favorites,
   showToast,
-  setStats
+  setStats,
+  soundEnabled = true
 ) => {
   const [quizQuestions, setQuizQuestions] = useState([]);
   const [quizScore, setQuizScore] = useState(0);
@@ -75,6 +78,9 @@ export const useQuiz = (
   const handleQuizAnswer = useCallback((questionIndex, optionIndex) => {
     if (quizCompleted) return;
 
+    // Play sound when selecting an answer
+    playFlipSound(soundEnabled);
+
     setQuizQuestions(prev =>
       prev.map((q, idx) =>
         idx === questionIndex ? { ...q, selectedIndex: optionIndex } : q
@@ -95,7 +101,7 @@ export const useQuiz = (
         }
       }
     }, 100);
-  }, [quizCompleted, quizQuestions.length]);
+  }, [quizCompleted, quizQuestions.length, soundEnabled]);
 
   // Submit quiz and calculate score
   const submitQuiz = useCallback(() => {
