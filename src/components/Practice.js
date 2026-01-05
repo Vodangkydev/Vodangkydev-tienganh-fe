@@ -72,7 +72,7 @@ const Practice = ({
     handleNext(false); // Explicitly pass false to ensure sound plays
   };
 
-  // Cuộn lên trên khi nhấn vào input
+  // Cuộn lên trên khi nhấn vào input - hoạt động trên mọi thiết bị responsive
   const scrollToTop = () => {
     if (wordDisplayRef.current) {
       const element = wordDisplayRef.current;
@@ -82,16 +82,28 @@ const Practice = ({
       const headerHeight = header ? header.offsetHeight : 0;
       const padding = 12;
       
-      // Lấy vị trí hiện tại của element
-      const rect = element.getBoundingClientRect();
-      const currentScrollTop = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop;
-      const elementTop = rect.top + currentScrollTop;
-      const targetScroll = Math.max(0, elementTop - headerHeight - padding);
+      const scrollAction = () => {
+        // Lấy vị trí hiện tại của element
+        const rect = element.getBoundingClientRect();
+        const currentScrollTop = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop;
+        const elementTop = rect.top + currentScrollTop;
+        const targetScroll = Math.max(0, elementTop - headerHeight - padding);
+        
+        // Cuộn ngay lập tức - dùng trực tiếp scrollTop
+        document.documentElement.scrollTop = targetScroll;
+        document.body.scrollTop = targetScroll;
+        window.scrollTo(0, targetScroll);
+        
+        // Dùng scrollIntoView như backup cho mọi thiết bị
+        element.scrollIntoView({ behavior: 'auto', block: 'start' });
+      };
       
-      // Cuộn ngay lập tức - dùng trực tiếp scrollTop
-      document.documentElement.scrollTop = targetScroll;
-      document.body.scrollTop = targetScroll;
-      window.scrollTo(0, targetScroll);
+      // Cuộn ngay lập tức
+      scrollAction();
+      
+      // Cuộn lại sau delay nhỏ để xử lý trường hợp keyboard xuất hiện (responsive)
+      setTimeout(scrollAction, 100);
+      setTimeout(scrollAction, 300);
     }
   };
 
@@ -101,6 +113,17 @@ const Practice = ({
     e.target.style.boxShadow = '0 0 0 4px rgba(102, 126, 234, 0.1), 0 8px 25px rgba(102, 126, 234, 0.15)';
     e.target.style.transform = 'translateY(-1px)';
     e.target.style.background = 'rgba(255, 255, 255, 0.95)';
+    
+    // Cuộn sau khi focus (xử lý trường hợp keyboard xuất hiện trên responsive)
+    setTimeout(() => {
+      scrollToTop();
+    }, 150);
+  };
+
+  // Handle touch start - cuộn ngay khi chạm (cho responsive)
+  const handleTouchStart = (e) => {
+    // Cuộn ngay lập tức khi chạm vào input
+    scrollToTop();
   };
 
 
@@ -587,11 +610,9 @@ const Practice = ({
               }}
               onMouseDown={scrollToTop}
               onClick={scrollToTop}
-              onFocus={(e) => {
-                handleInputFocus(e);
-                scrollToTop(e);
-              }}
-              onTouchStart={scrollToTop}
+              onFocus={handleInputFocus}
+              onTouchStart={handleTouchStart}
+              onTouchEnd={scrollToTop}
               onBlur={(e) => {
                 e.target.style.borderColor = 'rgba(102, 126, 234, 0.2)';
                 e.target.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.05)';
