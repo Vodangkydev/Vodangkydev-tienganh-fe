@@ -80,8 +80,13 @@ const Practice = ({
     e.target.style.transform = 'translateY(-1px)';
     e.target.style.background = 'rgba(255, 255, 255, 0.95)';
     
-    // Scroll word display section to top of screen immediately
-    scrollWordDisplayToTop();
+    // Scroll word display section to top of screen immediately (không chờ)
+    scrollWordDisplayToTop(true);
+  };
+
+  // Handle input click - cuộn ngay lập tức khi nhấn vào
+  const handleInputClick = () => {
+    scrollWordDisplayToTop(true);
   };
 
   // Scroll the word display to just below the header (for mobile UX)
@@ -601,7 +606,7 @@ const Practice = ({
                 outline: 'none',
                 minHeight: isMobile ? '48px' : 'auto'
               }}
-              onClick={scrollWordDisplayToTop}
+              onClick={handleInputClick}
               onFocus={handleInputFocus}
               onBlur={(e) => {
                 e.target.style.borderColor = 'rgba(102, 126, 234, 0.2)';
