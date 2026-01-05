@@ -72,82 +72,29 @@ const Practice = ({
     handleNext(false); // Explicitly pass false to ensure sound plays
   };
 
-  // Scroll the word display to just below the header (for mobile UX)
-  const scrollWordDisplayToTop = (immediate = false) => {
+  // Cuộn lên trên khi nhấn vào input
+  const scrollToTop = () => {
     if (wordDisplayRef.current) {
       const element = wordDisplayRef.current;
       const header = document.querySelector('.header');
-      let headerHeight = 0;
-      if (header) headerHeight = header.offsetHeight;
-      const padding = 12; // khoảng cách nhỏ dưới header
-
-      const scrollAction = () => {
-        // Lấy vị trí top tuyệt đối của phần từ vựng
-        const rect = element.getBoundingClientRect();
-        const scrollTop = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop;
-        const elementTop = rect.top + scrollTop;
-        const target = Math.max(0, elementTop - headerHeight - padding);
-        
-        if (immediate) {
-          // Cuộn ngay lập tức không animation - dùng cả 2 cách để đảm bảo
-          // Cách 1: scrollTo với số
-          if (document.documentElement.scrollTop !== undefined) {
-            document.documentElement.scrollTop = target;
-          }
-          if (document.body.scrollTop !== undefined) {
-            document.body.scrollTop = target;
-          }
-          // Cách 2: scrollTo với object
-          window.scrollTo({
-            top: target,
-            behavior: 'auto'
-          });
-          // Cách 3: Đảm bảo bằng requestAnimationFrame
-          requestAnimationFrame(() => {
-            window.scrollTo({
-              top: target,
-              behavior: 'auto'
-            });
-          });
-        } else {
-          window.scrollTo({
-            top: target,
-            behavior: 'smooth'
-          });
-        }
-      };
-
-      if (immediate) {
-        // Gọi ngay lập tức
-        scrollAction();
-      } else {
-        setTimeout(scrollAction, 12);
-      }
+      const headerHeight = header ? header.offsetHeight : 0;
+      const padding = 12;
+      
+      const rect = element.getBoundingClientRect();
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop;
+      const elementTop = rect.top + scrollTop;
+      const target = Math.max(0, elementTop - headerHeight - padding);
+      
+      window.scrollTo(0, target);
     }
   };
 
-  // Handle input mousedown - cuộn ngay lập tức khi nhấn vào (trước khi focus)
-  const handleInputMouseDown = (e) => {
-    // Cuộn ngay lập tức khi nhấn vào, trước cả khi focus
-    scrollWordDisplayToTop(true);
-  };
-
-  // Handle input click - cuộn ngay lập tức khi click
-  const handleInputClick = (e) => {
-    // Cuộn ngay lập tức khi click
-    scrollWordDisplayToTop(true);
-  };
-
-  // Handle input focus - scroll word display to top of screen immediately
+  // Handle input focus - style changes
   const handleInputFocus = (e) => {
-    // Style changes
     e.target.style.borderColor = '#667eea';
     e.target.style.boxShadow = '0 0 0 4px rgba(102, 126, 234, 0.1), 0 8px 25px rgba(102, 126, 234, 0.15)';
     e.target.style.transform = 'translateY(-1px)';
     e.target.style.background = 'rgba(255, 255, 255, 0.95)';
-    
-    // Scroll word display section to top of screen immediately (không chờ)
-    scrollWordDisplayToTop(true);
   };
 
 
@@ -614,13 +561,7 @@ const Practice = ({
               className="input-field"
               placeholder={languageMode === 'vietnamese' ? "Nhập từ tiếng Anh..." : "Nhập từ tiếng Việt..."}
               value={userInput}
-              onChange={(e) => {
-                setUserInput(e.target.value);
-                // Tự động cuộn lên ngay khi bắt đầu nhập để dễ nhìn thấy từ cần nhập
-                if (e.target.value.length === 1) {
-                  scrollWordDisplayToTop(true); // Cuộn ngay lập tức khi bắt đầu nhập
-                }
-              }}
+              onChange={(e) => setUserInput(e.target.value)}
               onKeyPress={handleKeyPress}
               disabled={isAnswered}
               style={{
@@ -638,10 +579,9 @@ const Practice = ({
                 outline: 'none',
                 minHeight: isMobile ? '48px' : 'auto'
               }}
-              onMouseDown={handleInputMouseDown}
-              onClick={handleInputClick}
+              onClick={scrollToTop}
               onFocus={handleInputFocus}
-              onTouchStart={handleInputMouseDown}
+              onTouchStart={scrollToTop}
               onBlur={(e) => {
                 e.target.style.borderColor = 'rgba(102, 126, 234, 0.2)';
                 e.target.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.05)';
