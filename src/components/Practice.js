@@ -76,16 +76,22 @@ const Practice = ({
   const scrollToTop = () => {
     if (wordDisplayRef.current) {
       const element = wordDisplayRef.current;
+      
+      // Tính toán vị trí với header
       const header = document.querySelector('.header');
       const headerHeight = header ? header.offsetHeight : 0;
       const padding = 12;
       
+      // Lấy vị trí hiện tại của element
       const rect = element.getBoundingClientRect();
-      const scrollTop = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop;
-      const elementTop = rect.top + scrollTop;
-      const target = Math.max(0, elementTop - headerHeight - padding);
+      const currentScrollTop = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop;
+      const elementTop = rect.top + currentScrollTop;
+      const targetScroll = Math.max(0, elementTop - headerHeight - padding);
       
-      window.scrollTo(0, target);
+      // Cuộn ngay lập tức - dùng trực tiếp scrollTop
+      document.documentElement.scrollTop = targetScroll;
+      document.body.scrollTop = targetScroll;
+      window.scrollTo(0, targetScroll);
     }
   };
 
@@ -579,8 +585,12 @@ const Practice = ({
                 outline: 'none',
                 minHeight: isMobile ? '48px' : 'auto'
               }}
+              onMouseDown={scrollToTop}
               onClick={scrollToTop}
-              onFocus={handleInputFocus}
+              onFocus={(e) => {
+                handleInputFocus(e);
+                scrollToTop(e);
+              }}
               onTouchStart={scrollToTop}
               onBlur={(e) => {
                 e.target.style.borderColor = 'rgba(102, 126, 234, 0.2)';
