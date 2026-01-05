@@ -85,7 +85,7 @@ const Practice = ({
   };
 
   // Scroll the word display to just below the header (for mobile UX)
-  const scrollWordDisplayToTop = () => {
+  const scrollWordDisplayToTop = (immediate = false) => {
     if (wordDisplayRef.current) {
       const element = wordDisplayRef.current;
       const header = document.querySelector('.header');
@@ -93,7 +93,7 @@ const Practice = ({
       if (header) headerHeight = header.offsetHeight;
       const padding = 12; // khoảng cách nhỏ dưới header
 
-      setTimeout(() => {
+      const scrollAction = () => {
         // Lấy vị trí top tuyệt đối của phần từ vựng
         const rect = element.getBoundingClientRect();
         const scrollTop = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop;
@@ -101,9 +101,15 @@ const Practice = ({
         const target = Math.max(0, elementTop - headerHeight - padding);
         window.scrollTo({
           top: target,
-          behavior: 'smooth'
+          behavior: immediate ? 'auto' : 'smooth'
         });
-      }, 12);
+      };
+
+      if (immediate) {
+        scrollAction();
+      } else {
+        setTimeout(scrollAction, 12);
+      }
     }
   };
 
@@ -571,7 +577,13 @@ const Practice = ({
               className="input-field"
               placeholder={languageMode === 'vietnamese' ? "Nhập từ tiếng Anh..." : "Nhập từ tiếng Việt..."}
               value={userInput}
-              onChange={(e) => setUserInput(e.target.value)}
+              onChange={(e) => {
+                setUserInput(e.target.value);
+                // Tự động cuộn lên ngay khi bắt đầu nhập để dễ nhìn thấy từ cần nhập
+                if (e.target.value.length === 1) {
+                  scrollWordDisplayToTop(true); // Cuộn ngay lập tức khi bắt đầu nhập
+                }
+              }}
               onKeyPress={handleKeyPress}
               disabled={isAnswered}
               style={{
