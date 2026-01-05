@@ -72,7 +72,7 @@ const Practice = ({
     handleNext(false); // Explicitly pass false to ensure sound plays
   };
 
-  // Cuộn lên trên khi nhấn vào input - hoạt động trên mọi thiết bị responsive
+  // Cuộn lên trên khi nhấn vào input - mượt mà, không giật
   const scrollToTop = () => {
     if (wordDisplayRef.current) {
       const element = wordDisplayRef.current;
@@ -82,28 +82,18 @@ const Practice = ({
       const headerHeight = header ? header.offsetHeight : 0;
       const padding = 12;
       
-      const scrollAction = () => {
-        // Lấy vị trí hiện tại của element
-        const rect = element.getBoundingClientRect();
-        const currentScrollTop = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop;
-        const elementTop = rect.top + currentScrollTop;
-        const targetScroll = Math.max(0, elementTop - headerHeight - padding);
-        
-        // Cuộn ngay lập tức - dùng trực tiếp scrollTop
-        document.documentElement.scrollTop = targetScroll;
-        document.body.scrollTop = targetScroll;
-        window.scrollTo(0, targetScroll);
-        
-        // Dùng scrollIntoView như backup cho mọi thiết bị
-        element.scrollIntoView({ behavior: 'auto', block: 'start' });
-      };
+      // Lấy vị trí hiện tại của element
+      const rect = element.getBoundingClientRect();
+      const currentScrollTop = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop;
+      const elementTop = rect.top + currentScrollTop;
+      const targetScroll = Math.max(0, elementTop - headerHeight - padding);
       
-      // Cuộn ngay lập tức
-      scrollAction();
-      
-      // Cuộn lại sau delay nhỏ để xử lý trường hợp keyboard xuất hiện (responsive)
-      setTimeout(scrollAction, 100);
-      setTimeout(scrollAction, 300);
+      // Cuộn mượt mà với smooth behavior
+      window.scrollTo({
+        top: targetScroll,
+        left: 0,
+        behavior: 'smooth'
+      });
     }
   };
 
@@ -114,10 +104,8 @@ const Practice = ({
     e.target.style.transform = 'translateY(-1px)';
     e.target.style.background = 'rgba(255, 255, 255, 0.95)';
     
-    // Cuộn sau khi focus (xử lý trường hợp keyboard xuất hiện trên responsive)
-    setTimeout(() => {
-      scrollToTop();
-    }, 150);
+    // Cuộn mượt mà khi focus
+    scrollToTop();
   };
 
   // Handle touch start - cuộn ngay khi chạm (cho responsive)
