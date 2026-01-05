@@ -110,7 +110,7 @@ const Practice = ({
     // Cuộn lại sau delay nhỏ để xử lý trường hợp keyboard xuất hiện (responsive)
     setTimeout(() => {
       scrollToTop();
-    }, 50);
+    }, 100);
   };
 
   // Handle touch start - cuộn ngay khi chạm (cho responsive)
