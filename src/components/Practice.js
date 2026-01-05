@@ -72,7 +72,7 @@ const Practice = ({
     handleNext(false); // Explicitly pass false to ensure sound plays
   };
 
-  // Cuộn lên trên khi nhấn vào input - mượt mà, không giật
+  // Cuộn lên trên khi nhấn vào input - mượt mà trên mọi thiết bị responsive
   const scrollToTop = () => {
     if (wordDisplayRef.current) {
       const element = wordDisplayRef.current;
@@ -106,6 +106,11 @@ const Practice = ({
     
     // Cuộn mượt mà khi focus
     scrollToTop();
+    
+    // Cuộn lại sau delay nhỏ để xử lý trường hợp keyboard xuất hiện (responsive)
+    setTimeout(() => {
+      scrollToTop();
+    }, 100);
   };
 
   // Handle touch start - cuộn ngay khi chạm (cho responsive)
