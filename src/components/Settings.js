@@ -22,6 +22,8 @@ const Settings = ({
   setWordFilter,
   sortMode,
   setSortMode,
+  quizMode,
+  setQuizMode,
   onLogout,
   onResetStats,
   onDeleteVocabulary,
@@ -282,6 +284,28 @@ const Settings = ({
               ⭐ Hiển thị
             </div>
             
+            <div style={{ marginBottom: '20px' }}>
+              <div style={{ fontSize: isMobile ? '0.85rem' : '0.9rem', color: '#a0aec0', marginBottom: '10px' }}>Loại bài tập</div>
+              <select
+                value={quizMode ? 'quiz' : 'practice'}
+                onChange={(e) => setQuizMode(e.target.value === 'quiz')}
+                style={{
+                  background: '#1a202c',
+                  border: '1px solid #4a5568',
+                  borderRadius: '10px',
+                  padding: isMobile ? '12px' : '14px',
+                  color: 'white',
+                  fontSize: isMobile ? '0.95rem' : '1rem',
+                  width: '100%',
+                  minHeight: '48px',
+                  cursor: 'pointer'
+                }}
+              >
+                <option value="practice">Tự luận (Nhập từ)</option>
+                <option value="quiz">Trắc nghiệm</option>
+              </select>
+            </div>
+
             <div style={{ marginBottom: '20px' }}>
               <div style={{ fontSize: isMobile ? '0.85rem' : '0.9rem', color: '#a0aec0', marginBottom: '10px' }}>Bộ lọc từ vựng</div>
               <select

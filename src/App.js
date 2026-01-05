@@ -1152,6 +1152,8 @@ function App() {
         setWordFilter={setWordFilter}
         sortMode={sortMode}
         setSortMode={setSortMode}
+        quizMode={quizMode}
+        setQuizMode={setQuizMode}
         onLogout={handleLogout}
         onResetStats={resetStats}
         onDeleteVocabulary={() => deleteVocabulary()}
