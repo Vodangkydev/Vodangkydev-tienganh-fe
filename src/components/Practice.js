@@ -72,23 +72,6 @@ const Practice = ({
     handleNext(false); // Explicitly pass false to ensure sound plays
   };
 
-  // Handle input focus/click - scroll word display to top of screen immediately
-  const handleInputFocus = (e) => {
-    // Style changes
-    e.target.style.borderColor = '#667eea';
-    e.target.style.boxShadow = '0 0 0 4px rgba(102, 126, 234, 0.1), 0 8px 25px rgba(102, 126, 234, 0.15)';
-    e.target.style.transform = 'translateY(-1px)';
-    e.target.style.background = 'rgba(255, 255, 255, 0.95)';
-    
-    // Scroll word display section to top of screen immediately (không chờ)
-    scrollWordDisplayToTop(true);
-  };
-
-  // Handle input click - cuộn ngay lập tức khi nhấn vào
-  const handleInputClick = () => {
-    scrollWordDisplayToTop(true);
-  };
-
   // Scroll the word display to just below the header (for mobile UX)
   const scrollWordDisplayToTop = (immediate = false) => {
     if (wordDisplayRef.current) {
@@ -104,18 +87,67 @@ const Practice = ({
         const scrollTop = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop;
         const elementTop = rect.top + scrollTop;
         const target = Math.max(0, elementTop - headerHeight - padding);
-        window.scrollTo({
-          top: target,
-          behavior: immediate ? 'auto' : 'smooth'
-        });
+        
+        if (immediate) {
+          // Cuộn ngay lập tức không animation - dùng cả 2 cách để đảm bảo
+          // Cách 1: scrollTo với số
+          if (document.documentElement.scrollTop !== undefined) {
+            document.documentElement.scrollTop = target;
+          }
+          if (document.body.scrollTop !== undefined) {
+            document.body.scrollTop = target;
+          }
+          // Cách 2: scrollTo với object
+          window.scrollTo({
+            top: target,
+            behavior: 'auto'
+          });
+          // Cách 3: Đảm bảo bằng requestAnimationFrame
+          requestAnimationFrame(() => {
+            window.scrollTo({
+              top: target,
+              behavior: 'auto'
+            });
+          });
+        } else {
+          window.scrollTo({
+            top: target,
+            behavior: 'smooth'
+          });
+        }
       };
 
       if (immediate) {
+        // Gọi ngay lập tức
         scrollAction();
       } else {
         setTimeout(scrollAction, 12);
       }
     }
+  };
+
+  // Handle input mousedown - cuộn ngay lập tức khi nhấn vào (trước khi focus)
+  const handleInputMouseDown = (e) => {
+    // Cuộn ngay lập tức khi nhấn vào, trước cả khi focus
+    scrollWordDisplayToTop(true);
+  };
+
+  // Handle input click - cuộn ngay lập tức khi click
+  const handleInputClick = (e) => {
+    // Cuộn ngay lập tức khi click
+    scrollWordDisplayToTop(true);
+  };
+
+  // Handle input focus - scroll word display to top of screen immediately
+  const handleInputFocus = (e) => {
+    // Style changes
+    e.target.style.borderColor = '#667eea';
+    e.target.style.boxShadow = '0 0 0 4px rgba(102, 126, 234, 0.1), 0 8px 25px rgba(102, 126, 234, 0.15)';
+    e.target.style.transform = 'translateY(-1px)';
+    e.target.style.background = 'rgba(255, 255, 255, 0.95)';
+    
+    // Scroll word display section to top of screen immediately (không chờ)
+    scrollWordDisplayToTop(true);
   };
 
 
@@ -606,8 +638,10 @@ const Practice = ({
                 outline: 'none',
                 minHeight: isMobile ? '48px' : 'auto'
               }}
+              onMouseDown={handleInputMouseDown}
               onClick={handleInputClick}
               onFocus={handleInputFocus}
+              onTouchStart={handleInputMouseDown}
               onBlur={(e) => {
                 e.target.style.borderColor = 'rgba(102, 126, 234, 0.2)';
                 e.target.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.05)';
